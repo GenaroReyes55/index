@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>OT Hub</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="iconog.png">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            /* --- PALETA BASE --- */
+            --bg-deep: #0F0524; 
+            --liquid-unified: linear-gradient(135deg, #513B70, #2B2D5C);
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-blur: 30px;
+            --text-white: #e0e0e0;
+            --text-muted: rgba(255, 255, 255, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+        /* --- FONDO GLOBAL --- */
+        body {
+            background-color: #050110; 
+            color: var(--text-white);
+        }
+
+        /* --- CONTENEDOR RESPONSIVO --- */
+        .mobile-container {
+            width: 100%; max-width: 800px; min-height: 100vh;
+            background-color: var(--bg-deep); position: relative;
+            overflow-x: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            margin: 0 auto; 
+        }
+
+        /* --- MÁSCARA PARA EL FONDO ANIMADO --- */
+        .blob-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: 0; pointer-events: none;
+        }
+
+        .liquid-blob {
+            position: absolute; filter: blur(60px); opacity: 0.5;
+            animation: moveLiquid 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .blob-1 {
+            top: -5%; left: -20%; width: 400px; height: 400px;
+            background: linear-gradient(45deg, #3a1c71, #2b2d5c);
+            border-radius: 40% 60% 70% 30%;
+        }
+        .blob-2 {
+            bottom: -5%; right: -20%; width: 350px; height: 350px;
+            background: linear-gradient(to left, #2b2d5c, #513B70);
+            border-radius: 60% 40% 30% 70%; animation-delay: -5s;
+        }
+        @keyframes moveLiquid {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            100% { transform: translate(30px, 30px) rotate(10deg) scale(1.1); }
+        }
+
+        /* --- UI PRINCIPAL --- */
+        .glass-overlay {
+            min-height: 100vh; width: 100%;
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            background: rgba(15, 5, 36, 0.5);
+            padding: calc(env(safe-area-inset-top, 59px) + 20px) 24px calc(env(safe-area-inset-bottom, 34px) + 30px) 24px;
+            display: flex; flex-direction: column; gap: 20px;
+            position: relative; z-index: 1;
+        }
+
+        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
+        .welcome-text h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; color: #fff; }
+        .welcome-text p { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; text-transform: capitalize; margin-bottom: 2px;}
+        
+        /* ICONO DE PERFIL */
+        .profile-glass {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: var(--glass-bg); border: 2px solid var(--glass-border);
+            overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            cursor: pointer; transition: transform 0.2s, border-color 0.2s;
+        }
+        .profile-glass:active { transform: scale(0.9); border-color: rgba(255,255,255,0.4); }
+        .profile-glass img { width: 100%; height: 100%; object-fit: cover; }
+
+        .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* --- TARJETAS --- */
+        .card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+            border-radius: 26px; padding: 22px; text-decoration: none; 
+            display: flex; flex-direction: column; justify-content: space-between;
+            align-items: center; text-align: center; min-height: 155px; 
+            position: relative; overflow: hidden; transition: transform 0.2s, background 0.2s;
+        }
+        .card:active { transform: scale(0.96); background: rgba(255,255,255,0.08); }
+
+        .icon-liquid {
+            width: 52px; height: 52px; border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            background: var(--liquid-unified); display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: #fff; margin-bottom: 12px;
+            box-shadow: 0 5px 15px rgba(43, 45, 92, 0.3);
+            animation: breathe 5s infinite ease-in-out alternate;
+        }
+        @keyframes breathe { 0% { transform: scale(1); border-radius: 30% 70% 70% 30%; } 100% { transform: scale(1.05); border-radius: 50%; } }
+
+        .card-info { width: 100%; }
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-white); margin-bottom: 4px; }
+        .card-sub { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+        .card-sub.active { color: #9FB5A0; font-weight: 700; }
+
+        .card.wide { grid-column: span 2; flex-direction: row; text-align: left; min-height: 100px; padding: 20px 25px; }
+        .card.wide .icon-liquid { margin-bottom: 0; margin-right: 20px; width: 48px; height: 48px; font-size: 1.3rem;}
+        .card.wide .card-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start;}
+
+        /* BOTÓN EXTERNO */
+        .controls-section { margin-top: auto; display: flex; flex-direction: column; padding-top: 20px; }
+        .external-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            padding: 14px; border-radius: 50px; color: var(--text-muted); text-decoration: none;
+            font-size: 0.9rem; font-weight: 600; transition: 0.3s; backdrop-filter: blur(10px);
+        }
+        .external-btn:active { transform: scale(0.96); background: var(--liquid-unified); color: #fff; border-color: transparent; }
+
+        /* --- MODAL DE COPIA DE SEGURIDAD --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); z-index: 100;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-content {
+            background: rgba(15, 5, 36, 0.85); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 28px; width: 90%; max-width: 380px; padding: 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: translateY(30px) scale(0.95); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 1.3rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px;}
+        
+        .close-btn {
+            background: rgba(255,255,255,0.05); border: none; color: var(--text-muted);
+            width: 35px; height: 35px; border-radius: 50%; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+        }
+        .close-btn:active { background: rgba(255,255,255,0.2); color: #fff; transform: scale(0.9); }
+
+        .backup-grid { display: flex; flex-direction: column; gap: 12px; }
+        .backup-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+            padding: 15px; border-radius: 18px; color: #fff;
+            font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .backup-btn:active { transform: scale(0.96); background: var(--liquid-unified); border-color: transparent; }
+        .backup-btn i { font-size: 1.2rem; }
+
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <div class="blob-container">
+            <div class="liquid-blob blob-1"></div>
+            <div class="liquid-blob blob-2"></div>
+        </div>
+
+        <div class="glass-overlay">
+            <header>
+                <div class="welcome-text">
+                    <p id="dateDisplay">Cargando...</p>
+                    <h1>Genaro</h1>
+                </div>
+                <div class="profile-glass" onclick="toggleModal(true)">
+                    <img src="iconog.png" alt="Perfil">
+                </div>
+            </header>
+
+            <main class="app-grid">
+                <a href="horarios.html" class="card wide">
+                    <div class="icon-liquid"><i class="fa-regular fa-calendar-check"></i></div>
+                    <div class="card-info">
+                        <div class="card-title">Horario</div>
+                        <div class="card-sub" id="scheduleData">Calculando...</div>
+                    </div>
+                </a>
+
+                <a href="s.html" class="card">
+                    <div class="icon-liquid"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <div class="card-info">
+                        <div class="card-title">Finanzas</div>
+                        <div class="card-sub" id="moneyData">$0.00</div>
+                    </div>
+                </a>
+
+                <a href="gym.html" class="card">
+                    <div class="icon-liquid"><i class="fa-solid fa-dumbbell"></i></div>
+                    <div class="card-info">
+                        <div class="card-title">Gym</div>
+                        <div class="card-sub" id="gymData">Cargando...</div>
+                    </div>
+                </a>
+
+                <a href="love.html" class="card wide">
+                    <div class="icon-liquid"><i class="fa-solid fa-note-sticky"></i></div>
+                    <div class="card-info">
+                        <div class="card-title">Notas</div>
+                        <div class="card-sub">Espacio personal</div>
+                    </div>
+                </a>
+
+                <a href="metas.html" class="card">
+                    <div class="icon-liquid"><i class="fa-solid fa-bullseye"></i></div>
+                    <div class="card-info">
+                        <div class="card-title">Hábitos</div>
+                        <div class="card-sub" id="habitsData">0/6 Hoy</div>
+                    </div>
+                </a>
+
+                <a href="popo.html" class="card">
+                    <div class="icon-liquid"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <div class="card-info">
+                        <div class="card-title">Salud</div>
+                        <div class="card-sub" id="healthData">0 Reg.</div>
+                    </div>
+                </a>
+                
+                <a href="ahorro.html" class="card wide">
+                    <div class="icon-liquid"><i class="fa-solid fa-piggy-bank"></i></div>
+                    <div class="card-info">
+                        <div class="card-title">Ruta Meta</div>
+                        <div class="card-sub" id="metaData">Calculando progreso...</div>
+                    </div>
+                </a>
+            </main>
+
+            <div class="controls-section">
+                <a href="https://manga-oni.com/mi-lista/siguiendo" target="_blank" class="external-btn">
+                    <i class="fas fa-globe"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="backupModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-gear"></i> Ajustes</h3>
+                    <button class="close-btn" onclick="toggleModal(false)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: -10px;">
+                    Guarda o restaura el progreso de todas tus apps.
+                </p>
+
+                <div class="backup-grid">
+                    <button class="backup-btn" onclick="exportBackup()">
+                        <i class="fa-solid fa-cloud-arrow-down" style="color: #00f2ea;"></i> Guardar Copia
+                    </button>
+                    <label class="backup-btn">
+                        <i class="fa-solid fa-clock-rotate-left" style="color: #ff0050;"></i> Restaurar Datos
+                        <input type="file" style="display: none;" accept=".json" onchange="importBackup(event)">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const scheduleDB = {
+            1: [{ s: 18, d: 1, n: "Ecuaciones Dif." }], // Lunes
+            2: [{ s: 14, d: 2, n: "POO" }, { s: 18, d: 2, n: "Ecuaciones Dif." }], // Martes
+            3: [], // Miércoles
+            4: [{ s: 17, d: 2, n: "POO" }, { s: 19, d: 2, n: "Ecuaciones Dif." }], // Jueves
+            5: [{ s: 14, d: 1, n: "POO" }] // Viernes
+        };
+
+        const gymRoutineDB = ["Descanso", "Pierna Completa", "Pecho + Tríceps", "Descanso Activo", "Pierna + Glúteo", "Espalda + Bíceps", "Hombro + Core"];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDate();
+            loadDashboard();
+            setInterval(updateSchedule, 60000);
+        });
+
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            const dateStr = now.toLocaleDateString('es-ES', options);
+            document.getElementById('dateDisplay').innerText = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+        }
+
+        function getMoneyValue(key) {
+            const val = localStorage.getItem(key);
+            if (!val) return 0;
+            return parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
+        }
+
+        function loadDashboard() {
+            // Actualizar Finanzas
+            const assets = getMoneyValue("cartera") + getMoneyValue("tarjeta");
+            const debts = getMoneyValue("cameDebe") + getMoneyValue("dolyDebe") + getMoneyValue("deudaComunitaria");
+            const total = assets + debts;
+            document.getElementById('moneyData').innerText = "$" + total.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+
+            // Actualizar Ruta Meta (Ahorro)
+            const currentMeta = parseFloat(localStorage.getItem('ahorro_meta')) || 3000;
+            const progressPct = Math.min((total / currentMeta) * 100, 100);
+            const metaEl = document.getElementById('metaData');
+            
+            if (progressPct >= 100) {
+                metaEl.innerText = "¡Meta Alcanzada!";
+                metaEl.classList.add('active');
+            } else {
+                metaEl.innerText = `${Math.floor(progressPct)}% completado`;
+                metaEl.classList.remove('active');
+            }
+
+            // Actualizar Hábitos
+            const todayKey = getHabitKey(new Date());
+            const habits = JSON.parse(localStorage.getItem(todayKey) || '[]');
+            document.getElementById('habitsData').innerText = `${habits.length}/6 Completado`;
+
+            // Actualizar Salud
+            const bioData = JSON.parse(localStorage.getItem('popocalipsis_2026') || '{}');
+            const totalBio = Object.keys(bioData).length;
+            document.getElementById('healthData').innerText = `${totalBio} Reg.`;
+
+            // Actualizar Gym
+            const todayIndex = new Date().getDay(); 
+            const routineName = gymRoutineDB[todayIndex] || "Descanso";
+            document.getElementById('gymData').innerText = routineName;
+
+            // Actualizar Horario
+            updateSchedule();
+        }
+
+        function updateSchedule() {
+            const now = new Date();
+            const day = now.getDay();
+            const hour = now.getHours();
+            
+            let statusText = "Libre por ahora";
+            let isActive = false;
+
+            if (scheduleDB[day]) {
+                const currentClass = scheduleDB[day].find(c => hour >= c.s && hour < (c.s + c.d));
+                if (currentClass) {
+                    statusText = "En curso: " + currentClass.n;
+                    isActive = true;
+                } else {
+                    const nextClass = scheduleDB[day].find(c => c.s > hour);
+                    if(nextClass) statusText = `Siguiente: ${nextClass.n} (${formatTime(nextClass.s)})`;
+                    else statusText = "Terminaste por hoy";
+                }
+            } else {
+                statusText = "Fin de semana";
+            }
+
+            const el = document.getElementById('scheduleData');
+            el.innerText = statusText;
+            if(isActive) el.classList.add('active');
+            else el.classList.remove('active');
+        }
+
+        function getHabitKey(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `habits_${y}-${m}-${d}`;
+        }
+
+        function formatTime(h) {
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return `${h12} ${ampm}`;
+        }
+
+        /* --- CONTROL DEL MODAL DE AJUSTES --- */
+        function toggleModal(show) {
+            const modal = document.getElementById('backupModal');
+            if(show) {
+                modal.classList.add('active');
+                if(navigator.vibrate) navigator.vibrate(15);
+            } else {
+                modal.classList.remove('active');
+            }
+        }
+
+        /* --- SISTEMA DE COPIA DE SEGURIDAD --- */
+        function exportBackup() {
+            const data = JSON.stringify(localStorage);
+            const blob = new Blob([data], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const dateStr = new Date().toISOString().split('T')[0];
+            a.download = `Backup_OT_Hub_${dateStr}.json`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            toggleModal(false); 
+        }
+
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    localStorage.clear(); 
+                    for (let key in data) {
+                        localStorage.setItem(key, data[key]);
+                    }
+                    alert("¡Copia de seguridad restaurada con éxito!");
+                    location.reload(); 
+                } catch(error) {
+                    alert("Error al leer el archivo. Asegúrate de que sea el backup correcto.");
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; 
+        }
+    </script>
+</body>
+</html>

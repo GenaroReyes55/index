@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Plan Inteligente Hub</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="iconog.png">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --bg-deep: #0F0524;
+        --glass-bg: rgba(255, 255, 255, 0.04);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-blur: 30px;
+        --text-white: #e0e0e0;
+        --text-muted: rgba(255, 255, 255, 0.5);
+        
+        --neon-green: #00f260;
+        --neon-red: #ff3333;
+        --neon-blue: #2575fc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body { background-color: #050110; color: var(--text-white); }
+
+    .mobile-container {
+        width: 100%; max-width: 800px; min-height: 100vh;
+        background-color: var(--bg-deep); position: relative;
+        overflow-x: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.8); margin: 0 auto;
+    }
+
+    .blob-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
+    .liquid-blob { position: absolute; filter: blur(60px); opacity: 0.5; animation: moveLiquid 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); }
+    .blob-1 { top: -5%; left: -20%; width: 400px; height: 400px; background: linear-gradient(45deg, #2575fc, #00f260); border-radius: 40% 60% 70% 30%; }
+    .blob-2 { bottom: -5%; right: -20%; width: 350px; height: 350px; background: linear-gradient(to left, #2b2d5c, #11998e); border-radius: 60% 40% 30% 70%; animation-delay: -5s; }
+    @keyframes moveLiquid { 0% { transform: translate(0, 0) rotate(0deg) scale(1); } 100% { transform: translate(30px, 30px) rotate(10deg) scale(1.1); } }
+
+    .glass-overlay {
+        min-height: 100vh; width: 100%;
+        backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
+        background: rgba(15, 5, 36, 0.5);
+        padding: calc(env(safe-area-inset-top, 59px) + 20px) 20px calc(env(safe-area-inset-bottom, 34px) + 30px) 20px;
+        display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 1;
+    }
+
+    /* HEADER SIMÉTRICO */
+    .nav-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+    .nav-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; color: var(--text-white); text-decoration: none; font-size: 1.1rem; transition: 0.2s; cursor: pointer; }
+    .nav-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
+    .page-title { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }
+
+    /* WIDGET PROGRESO ACTUAL */
+    .goal-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 26px; padding: 25px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .goal-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
+    .goal-title { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; letter-spacing: 2px; }
+    .goal-amount { font-size: 2.2rem; font-weight: 800; color: #fff; line-height: 1; transition: color 0.3s; }
+    
+    .goal-target { font-size: 0.8rem; color: var(--neon-blue); font-weight: 700; display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px; background: rgba(37, 117, 252, 0.1); border-radius: 8px; border: 1px solid rgba(37, 117, 252, 0.3); transition: 0.2s; }
+    .goal-target:active { transform: scale(0.95); }
+
+    .missing-text { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 15px; }
+    .missing-highlight { color: var(--neon-red); font-weight: 800; }
+
+    .progress-track { height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; position: relative; }
+    .progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-green)); border-radius: 10px; transition: width 0.8s ease; box-shadow: 0 0 10px var(--neon-green); }
+    
+    .action-row { display: flex; gap: 10px; margin-top: 15px; }
+    .action-btn { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; color: #fff; font-size: 0.75rem; font-weight: 700; text-align: center; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; }
+    .action-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
+
+    /* BARRA DE BORRADO */
+    .delete-bar {
+        display: none; justify-content: space-between; align-items: center;
+        background: rgba(241, 39, 17, 0.15); padding: 10px 15px; border-radius: 16px;
+        border: 1px solid rgba(241, 39, 17, 0.3); animation: slideIn 0.3s;
+        margin-bottom: 10px;
+    }
+    .delete-bar.show { display: flex; }
+    .del-btn-confirm { background: #f12711; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; cursor: pointer; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* TABLA ESTILO CRISTAL */
+    .table-container { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 15px; overflow: hidden; }
+    .table-title { font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 15px; padding-left: 5px; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
+    
+    .fin-table { width: 100%; border-collapse: collapse; }
+    .fin-table th { text-align: left; padding: 8px 5px; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .fin-table td { padding: 12px 5px; border-bottom: 1px dashed rgba(255,255,255,0.05); vertical-align: middle; transition: 0.2s; }
+    .fin-table tr:last-child td { border-bottom: none; }
+
+    .col-date { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; width: 45px; }
+    .col-desc { font-size: 0.8rem; color: #fff; font-weight: 600; }
+    .col-desc i { font-size: 0.7rem; margin-right: 5px; opacity: 0.7; }
+    .col-amt { font-family: 'Fira Code', monospace; font-size: 0.85rem; text-align: right; font-weight: 700; }
+    
+    .val-in { color: var(--neon-green); }
+    .val-out { color: var(--neon-red); }
+
+    /* CHECKBOX Y ESTADOS */
+    .evt-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--glass-border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; margin: 0 auto; }
+    .evt-check.checked { background: var(--neon-blue); border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(37, 117, 252, 0.4); }
+    .evt-check i { font-size: 0.6rem; color: #fff; transform: scale(0); transition: 0.2s; }
+    .evt-check.checked i { transform: scale(1); }
+    
+    .row-paid { opacity: 0.35; filter: grayscale(100%); transition: 0.3s; }
+    
+    /* MODO SELECCIÓN */
+    .row-selected { background: rgba(241, 39, 17, 0.15); }
+    .sel-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--neon-red); display: flex; align-items: center; justify-content: center; transition: 0.2s; margin: 0 auto; }
+    .sel-check.checked { background: var(--neon-red); }
+    .sel-check i { font-size: 0.6rem; color: #fff; transform: scale(0); transition: 0.2s; }
+    .sel-check.checked i { transform: scale(1); }
+
+    /* --- MODALES EMERGENTES --- */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6); z-index: 100;
+        display: flex; justify-content: center; align-items: center;
+        opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .modal-content {
+        background: rgba(15, 5, 36, 0.85); border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 28px; width: 90%; max-width: 380px; padding: 20px 25px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        transform: translateY(30px) scale(0.95); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex; flex-direction: column; gap: 12px;
+    }
+    .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .modal-header h3 { font-size: 1.1rem; font-weight: 800; color: #fff; }
+    
+    .close-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-muted); width: 35px; height: 35px; border-radius: 50%; font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+    .close-btn:active { background: rgba(255,255,255,0.2); color: #fff; transform: scale(0.9); }
+
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    
+    .glass-input { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 15px; color: #fff; font-size: 0.9rem; outline: none; transition: 0.2s; }
+    .glass-input:focus { background: rgba(255,255,255,0.08); border-color: var(--neon-blue); }
+    
+    .save-btn { background: var(--neon-blue); border: none; color: #fff; padding: 15px; border-radius: 16px; font-weight: 800; font-size: 0.9rem; letter-spacing: 1px; margin-top: 5px; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4); }
+    .save-btn:active { transform: scale(0.95); }
+    .save-btn.green { background: var(--neon-green); box-shadow: 0 5px 15px rgba(0, 242, 96, 0.4); }
+
+    /* SELECCIÓN DE ÍCONOS EN EL MODAL */
+    .icon-grid {
+        display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 5px;
+    }
+    .icon-opt {
+        height: 38px; border-radius: 10px;
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-muted); font-size: 1.1rem; cursor: pointer; transition: 0.2s;
+    }
+    .icon-opt.active {
+        background: var(--neon-blue); color: #fff; border-color: transparent;
+        box-shadow: 0 0 10px rgba(37, 117, 252, 0.4); transform: scale(1.1);
+    }
+
+</style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        <div class="blob-container">
+            <div class="liquid-blob blob-1"></div>
+            <div class="liquid-blob blob-2"></div>
+        </div>
+
+        <div class="glass-overlay">
+            
+            <div class="nav-header">
+                <a href="index.html" class="nav-btn" title="Volver al Menú"><i class="fas fa-arrow-left"></i></a>
+                <span class="page-title">Ruta Meta</span>
+                <div class="nav-btn" onclick="toggleSelectionMode()" id="btnSelect"><i class="fas fa-check-double"></i></div>
+            </div>
+
+            <div class="goal-card">
+                <div class="goal-header">
+                    <div>
+                        <div class="goal-title">PROGRESO ACTUAL</div>
+                        <div class="goal-amount" id="goalAmount">Cargando...</div>
+                    </div>
+                    <div class="goal-target" onclick="toggleMetaModal(true)">
+                        META: <span id="metaDisplay">$3,000</span> <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="missing-text" id="missingText">Faltan <span class="missing-highlight">...</span> para llegar a la meta.</div>
+
+                <div class="progress-track">
+                    <div class="progress-fill" id="goalBar"></div>
+                </div>
+                
+                <div class="delete-bar" id="deleteBar">
+                    <span style="font-size:0.8rem; font-weight:700; color:#fff;" id="selCountText">0 SELECCIONADOS</span>
+                    <button class="del-btn-confirm" onclick="deleteSelected()">ELIMINAR</button>
+                </div>
+
+                <div class="action-row" id="addBtnRow">
+                    <div class="action-btn" onclick="toggleEventModal(true)">
+                        <i class="fas fa-plus"></i> Añadir Gasto/Ingreso
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">
+                    <span>TU PLAN DE EVENTOS</span>
+                    <span style="color:var(--text-muted); font-size:0.6rem;">MARCA LO COMPLETADO <i class="fas fa-check"></i></span>
+                </div>
+                <table class="fin-table">
+                    <thead>
+                        <tr>
+                            <th>Día</th>
+                            <th>Concepto</th>
+                            <th style="text-align: right;">Monto</th>
+                            <th style="text-align: center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planBody">
+                        </tbody>
+                </table>
+            </div>
+            
+        </div>
+
+        <div class="modal-overlay" id="eventModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-plus-circle" style="color: var(--neon-blue); margin-right: 8px;"></i> Nuevo Evento</h3>
+                    <button class="close-btn" onclick="toggleEventModal(false)"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ícono para identificarlo</label>
+                    <div class="icon-grid">
+                        <div class="icon-opt active" onclick="selectIcon('fa-bolt', this)"><i class="fas fa-bolt"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-arrow-down', this)"><i class="fas fa-arrow-down"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-arrow-up', this)"><i class="fas fa-arrow-up"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-bus', this)"><i class="fas fa-bus"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-utensils', this)"><i class="fas fa-utensils"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-shopping-cart', this)"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-gift', this)"><i class="fas fa-gift"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-gamepad', this)"><i class="fas fa-gamepad"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-heart', this)"><i class="fas fa-heart"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-mobile-alt', this)"><i class="fas fa-mobile-alt"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fab fa-spotify', this)"><i class="fab fa-spotify"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-tv', this)"><i class="fas fa-tv"></i></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 5px;">
+                    <label>Concepto</label>
+                    <input type="text" id="evName" class="glass-input" placeholder="Ej: Recarga Telcel, Spotify...">
+                </div>
+                <div class="form-group">
+                    <label>Monto</label>
+                    <input type="number" id="evAmount" class="glass-input" placeholder="Pon '-' si es gasto. Ej: -74">
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="evDate" class="glass-input">
+                </div>
+                <button class="save-btn" onclick="saveEvent()">GUARDAR EVENTO</button>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="metaModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-bullseye" style="color: var(--neon-green); margin-right: 8px;"></i> Cambiar Meta</h3>
+                    <button class="close-btn" onclick="toggleMetaModal(false)"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="form-group">
+                    <label>Nueva cantidad a alcanzar</label>
+                    <input type="number" id="metaInput" class="glass-input" placeholder="Ej: 4000">
+                </div>
+                <button class="save-btn green" onclick="saveMeta()">ACTUALIZAR META</button>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    const formatMoney = (val) => "$" + val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const parseMoney = (val) => parseFloat((val||"").replace(/[^0-9.-]/g, '')) || 0;
+
+    const baseEventsFallback = [
+        { id: 'b01', d: '2026-03-08', n: 'Depósito', a: 600, ic: 'fa-arrow-down' },
+        { id: 'b02', d: '2026-03-08', n: 'Pasajes', a: -88, ic: 'fa-bus' },
+        { id: 'b03', d: '2026-03-15', n: 'Depósito', a: 600, ic: 'fa-arrow-down' },
+        { id: 'b04', d: '2026-03-15', n: 'Pasajes', a: -88, ic: 'fa-bus' },
+        { id: 'b05', d: '2026-03-17', n: 'Deuda', a: -627.86, ic: 'fa-credit-card' },
+        { id: 'b06', d: '2026-03-19', n: 'Cumple', a: 500, ic: 'fa-gift' },
+        { id: 'b07', d: '2026-03-21', n: 'Flores', a: -300, ic: 'fa-leaf' },
+        { id: 'b08', d: '2026-03-22', n: 'Depósito', a: 600, ic: 'fa-arrow-down' },
+        { id: 'b09', d: '2026-03-22', n: 'Pasajes', a: -88, ic: 'fa-bus' },
+        { id: 'b10', d: '2026-03-22', n: 'HBO', a: -49, ic: 'fa-tv' },
+        { id: 'b11', d: '2026-03-23', n: 'Spotify', a: -74, ic: 'fab fa-spotify' },
+        { id: 'b12', d: '2026-03-27', n: 'Telcel', a: -250, ic: 'fa-mobile-alt' },
+        { id: 'b13', d: '2026-03-29', n: 'Depósito', a: 600, ic: 'fa-arrow-down' },
+        { id: 'b14', d: '2026-03-29', n: 'Pasajes', a: -88, ic: 'fa-bus' }
+    ];
+
+    let isSelectionMode = false;
+    let selectedIds = new Set();
+    let currentSelectedIcon = 'fa-bolt';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        let allEvents = JSON.parse(localStorage.getItem('ahorro_events'));
+        if (!allEvents) {
+            let extras = JSON.parse(localStorage.getItem('ahorro_extras') || '[]');
+            allEvents = [...baseEventsFallback, ...extras];
+            localStorage.setItem('ahorro_events', JSON.stringify(allEvents));
+            localStorage.removeItem('ahorro_extras'); 
+        }
+
+        document.getElementById('evDate').valueAsDate = new Date();
+        renderPlan();
+    });
+
+    function renderPlan() {
+        const vCame = parseMoney(localStorage.getItem("cameDebe"));
+        const vDoly = parseMoney(localStorage.getItem("dolyDebe"));
+        const vCom = parseMoney(localStorage.getItem("deudaComunitaria"));
+        const vCart = parseMoney(localStorage.getItem("cartera"));
+        const vTarj = parseMoney(localStorage.getItem("tarjeta"));
+        
+        let saldoReal = vCame + vDoly + vCom + vCart + vTarj;
+
+        let userGoal = parseFloat(localStorage.getItem('ahorro_meta')) || 3000;
+        document.getElementById('metaDisplay').innerText = formatMoney(userGoal);
+
+        let goalEl = document.getElementById('goalAmount');
+        goalEl.innerText = formatMoney(saldoReal);
+        
+        let missing = userGoal - saldoReal;
+        if (missing <= 0) {
+            document.getElementById('missingText').innerHTML = `<span class="missing-highlight" style="color:var(--neon-green)">¡META ALCANZADA! 🎉</span> Tienes un sobrante de ${formatMoney(Math.abs(missing))}.`;
+        } else {
+            document.getElementById('missingText').innerHTML = `Faltan <span class="missing-highlight">${formatMoney(missing)}</span> para llegar a la meta.`;
+        }
+
+        let pct = Math.min((saldoReal / userGoal) * 100, 100);
+        document.getElementById('goalBar').style.width = Math.max(0, pct) + '%';
+        
+        if(saldoReal >= userGoal) {
+            goalEl.style.color = 'var(--neon-green)';
+            goalEl.style.textShadow = '0 0 20px rgba(0, 242, 96, 0.4)';
+        } else {
+            goalEl.style.color = '#fff';
+            goalEl.style.textShadow = '0 0 15px rgba(37, 117, 252, 0.4)';
+        }
+
+        let allEvents = JSON.parse(localStorage.getItem('ahorro_events') || '[]');
+        allEvents.sort((a,b) => a.d.localeCompare(b.d)); 
+        
+        let checkedStates = JSON.parse(localStorage.getItem('ahorro_checked') || '{}');
+        let tbody = document.getElementById('planBody');
+        tbody.innerHTML = '';
+
+        if(allEvents.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding: 20px;">No hay eventos registrados.</td></tr>`;
+        }
+
+        allEvents.forEach((ev) => {
+            const isChecked = checkedStates[ev.id] === true;
+            const isSelected = selectedIds.has(ev.id);
+            
+            const [y, m, d] = ev.d.split('-');
+            const dateStr = `${d}/${m}`;
+            const valClass = ev.a >= 0 ? 'val-in' : 'val-out';
+            const sign = ev.a >= 0 ? '+' : '';
+            
+            let rowClass = "";
+            if (isSelectionMode && isSelected) rowClass = "row-selected";
+            else if (!isSelectionMode && isChecked) rowClass = "row-paid";
+
+            let clickAttr = isSelectionMode ? `onclick="toggleSelection('${ev.id}')"` : '';
+            
+            let actionHtml = '';
+            if (isSelectionMode) {
+                actionHtml = `<div class="sel-check ${isSelected ? 'checked' : ''}"><i class="fas fa-check"></i></div>`;
+            } else {
+                actionHtml = `<div class="evt-check ${isChecked ? 'checked' : ''}" onclick="toggleCheck('${ev.id}')"><i class="fas fa-check"></i></div>`;
+            }
+
+            let iconClass = ev.ic.includes(' ') ? ev.ic : `fas ${ev.ic}`;
+
+            tbody.innerHTML += `
+                <tr class="${rowClass}" ${clickAttr} style="${isSelectionMode ? 'cursor:pointer;' : ''}">
+                    <td class="col-date">${dateStr}</td>
+                    <td class="col-desc"><i class="${iconClass}"></i> ${ev.n}</td>
+                    <td class="col-amt ${valClass}">${sign}${ev.a.toFixed(2)}</td>
+                    <td style="text-align: right;">${actionHtml}</td>
+                </tr>
+            `;
+        });
+    }
+
+    window.toggleSelectionMode = function() {
+        isSelectionMode = !isSelectionMode;
+        selectedIds.clear();
+        
+        const btnSelect = document.getElementById('btnSelect');
+        const delBar = document.getElementById('deleteBar');
+        const addBtnRow = document.getElementById('addBtnRow');
+
+        if(isSelectionMode) {
+            btnSelect.style.background = "rgba(255,255,255,0.2)";
+            addBtnRow.style.display = 'none';
+            delBar.classList.add('show');
+        } else {
+            btnSelect.style.background = "var(--glass-bg)";
+            addBtnRow.style.display = 'flex';
+            delBar.classList.remove('show');
+        }
+        
+        updateSelectionText();
+        renderPlan();
+    }
+
+    window.toggleSelection = function(id) {
+        if(selectedIds.has(id)) selectedIds.delete(id);
+        else selectedIds.add(id);
+        
+        if(navigator.vibrate) navigator.vibrate(10);
+        updateSelectionText();
+        renderPlan();
+    }
+
+    function updateSelectionText() {
+        document.getElementById('selCountText').innerText = `${selectedIds.size} SELECCIONADOS`;
+    }
+
+    window.deleteSelected = function() {
+        if (selectedIds.size === 0) return;
+        
+        let allEvents = JSON.parse(localStorage.getItem('ahorro_events') || '[]');
+        allEvents = allEvents.filter(ev => !selectedIds.has(ev.id));
+        localStorage.setItem('ahorro_events', JSON.stringify(allEvents));
+        
+        let checkedStates = JSON.parse(localStorage.getItem('ahorro_checked') || '{}');
+        selectedIds.forEach(id => delete checkedStates[id]);
+        localStorage.setItem('ahorro_checked', JSON.stringify(checkedStates));
+
+        toggleSelectionMode();
+        if(navigator.vibrate) navigator.vibrate([30, 50, 30]);
+    }
+
+    window.toggleCheck = function(id) {
+        if (isSelectionMode) return;
+        let checkedStates = JSON.parse(localStorage.getItem('ahorro_checked') || '{}');
+        checkedStates[id] = !checkedStates[id];
+        localStorage.setItem('ahorro_checked', JSON.stringify(checkedStates));
+        if (navigator.vibrate) navigator.vibrate(15);
+        renderPlan();
+    }
+
+    window.toggleEventModal = function(show) {
+        const modal = document.getElementById('eventModal');
+        if(show) {
+            modal.classList.add('active');
+            if(navigator.vibrate) navigator.vibrate(15);
+        } else {
+            modal.classList.remove('active');
+            document.getElementById('evName').value = '';
+            document.getElementById('evAmount').value = '';
+            
+            const firstOpt = document.querySelector('.icon-opt');
+            selectIcon('fa-bolt', firstOpt);
+        }
+    }
+
+    window.selectIcon = function(iconClass, element) {
+        currentSelectedIcon = iconClass;
+        document.querySelectorAll('.icon-opt').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        if(navigator.vibrate) navigator.vibrate(10);
+    }
+
+    window.saveEvent = function() {
+        let name = document.getElementById('evName').value.trim();
+        let amountStr = document.getElementById('evAmount').value;
+        let date = document.getElementById('evDate').value;
+
+        if(!name || !amountStr || !date) {
+            alert("Por favor llena todos los campos.");
+            return;
+        }
+
+        let amount = parseFloat(amountStr);
+        let allEvents = JSON.parse(localStorage.getItem('ahorro_events') || '[]');
+        
+        allEvents.push({ 
+            id: 'e_' + Date.now(), 
+            d: date, 
+            n: name, 
+            a: amount, 
+            ic: currentSelectedIcon 
+        });
+        
+        localStorage.setItem('ahorro_events', JSON.stringify(allEvents));
+        toggleEventModal(false);
+        renderPlan();
+    }
+
+    window.toggleMetaModal = function(show) {
+        const modal = document.getElementById('metaModal');
+        if(show) {
+            document.getElementById('metaInput').value = parseFloat(localStorage.getItem('ahorro_meta')) || 3000;
+            modal.classList.add('active');
+            if(navigator.vibrate) navigator.vibrate(15);
+        } else {
+            modal.classList.remove('active');
+        }
+    }
+
+    window.saveMeta = function() {
+        let newMeta = parseFloat(document.getElementById('metaInput').value);
+        if(newMeta > 0) {
+            localStorage.setItem('ahorro_meta', newMeta);
+            toggleMetaModal(false);
+            renderPlan();
+        } else {
+            alert("Ingresa un monto válido mayor a 0.");
+        }
+    }
+</script>
+</body>
+</html>

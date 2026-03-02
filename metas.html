@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Hábitos Hub</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="iconog.png">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        /* --- TEMA UNIFICADO --- */
+        --bg-deep: #0F0524;
+        --liquid-unified: linear-gradient(135deg, #513B70, #2B2D5C);
+        
+        /* CRISTAL */
+        --glass-bg: rgba(255, 255, 255, 0.04);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-blur: 30px;
+
+        --text-white: #e0e0e0;
+        --text-muted: rgba(255, 255, 255, 0.5);
+        
+        /* Color Activo (Neon Violeta/Azul) */
+        --active-glow: #6a11cb;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    /* --- FONDO GLOBAL --- */
+    body {
+        background-color: #050110; 
+        color: var(--text-white);
+    }
+
+    /* --- CONTENEDOR RESPONSIVO --- */
+    .mobile-container {
+        width: 100%; max-width: 800px; min-height: 100vh;
+        background-color: var(--bg-deep); position: relative;
+        overflow-x: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        margin: 0 auto; 
+    }
+
+    /* --- MÁSCARA PARA EL FONDO ANIMADO --- */
+    .blob-container {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        overflow: hidden; z-index: 0; pointer-events: none;
+    }
+
+    .liquid-blob {
+        position: absolute; filter: blur(60px); opacity: 0.5;
+        animation: moveLiquid 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .blob-1 {
+        top: -5%; left: -20%; width: 400px; height: 400px;
+        background: linear-gradient(45deg, #3a1c71, #2b2d5c);
+        border-radius: 40% 60% 70% 30%;
+    }
+    .blob-2 {
+        bottom: -5%; right: -20%; width: 350px; height: 350px;
+        background: linear-gradient(to left, #2b2d5c, #513B70);
+        border-radius: 60% 40% 30% 70%; animation-delay: -5s;
+    }
+    @keyframes moveLiquid {
+        0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+        100% { transform: translate(30px, 30px) rotate(10deg) scale(1.1); }
+    }
+
+    /* --- UI PRINCIPAL --- */
+    .glass-overlay {
+        min-height: 100vh; width: 100%;
+        backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
+        background: rgba(15, 5, 36, 0.5);
+        padding: calc(env(safe-area-inset-top, 59px) + 20px) 20px calc(env(safe-area-inset-bottom, 34px) + 30px) 20px;
+        display: flex; flex-direction: column; gap: 20px;
+        position: relative; z-index: 1;
+    }
+
+    /* HEADER */
+    .nav-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .nav-btn {
+        width: 45px; height: 45px; border-radius: 50%;
+        background: var(--glass-bg); border: 1px solid var(--glass-border);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-white); text-decoration: none; font-size: 1.1rem;
+        transition: 0.2s;
+    }
+    .nav-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
+    .page-title { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }
+
+    /* FECHA */
+    .date-panel { text-align: center; margin-bottom: 10px; }
+    .date-title { font-size: 1.5rem; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(106, 17, 203, 0.4); }
+    .date-sub { font-size: 0.8rem; color: var(--text-muted); font-family: monospace; text-transform: uppercase; margin-top: 4px; }
+
+
+    /* --- RUEDA DE HÁBITOS (CRYSTAL REACTOR) --- */
+    .wheel-wrapper {
+        position: relative; width: 300px; height: 300px;
+        margin: 0 auto; flex-shrink: 0;
+    }
+
+    .habit-svg {
+        width: 100%; height: 100%; transform: rotate(-30deg); 
+        filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+    }
+
+    .slice {
+        fill: rgba(255, 255, 255, 0.03); 
+        stroke: rgba(255,255,255,0.1); stroke-width: 1px;
+        transition: fill 0.3s ease, filter 0.3s ease; cursor: pointer;
+    }
+    .slice:hover { fill: rgba(255, 255, 255, 0.08); }
+    
+    .slice.active { 
+        fill: url(#gradUnified); stroke: rgba(255,255,255,0.5);
+        filter: drop-shadow(0 0 10px var(--active-glow));
+    }
+
+    /* Iconos sobre la rueda */
+    .icons-layer {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none;
+    }
+
+    .icon-spot {
+        position: absolute; top: 50%; left: 50%;
+        width: 40px; height: 40px; margin-top: -20px; margin-left: -20px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; color: rgba(255,255,255,0.3); transition: 0.3s;
+    }
+    .icon-spot.active { 
+        color: #fff; transform: scale(1.2); 
+        text-shadow: 0 0 10px rgba(255,255,255,0.8);
+    }
+    
+    .icon-label {
+        position: absolute; top: 35px; font-size: 0.6rem; font-weight: 700; opacity: 0; transition: 0.3s;
+        pointer-events: none; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .icon-spot.active .icon-label { opacity: 1; color: #fff; }
+
+
+    /* --- MATRIZ CALENDARIO --- */
+    .calendar-section {
+        background: var(--glass-bg); border: 1px solid var(--glass-border);
+        border-radius: 24px; padding: 20px 0; margin-bottom: 20px; overflow: hidden;
+    }
+
+    .section-title {
+        padding: 0 20px; font-size: 0.8rem; font-weight: 700; 
+        color: var(--text-muted); margin-bottom: 15px;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .matrix-container { overflow-x: auto; padding-left: 20px; scrollbar-width: none; }
+    .matrix-container::-webkit-scrollbar { display: none; }
+
+    .matrix-grid { display: grid; grid-template-columns: 40px repeat(31, 32px); gap: 6px; }
+
+    .header-num { font-size: 0.65rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; font-family: monospace; }
+    .header-spacer { grid-column: 1; }
+
+    .month-label {
+        font-size: 0.65rem; font-weight: 800; color: #fff; display: flex; align-items: center;
+        position: sticky; left: 0; z-index: 10;
+    }
+
+    .day-circle {
+        width: 28px; height: 28px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 50%; cursor: pointer; position: relative; transition: transform 0.2s;
+    }
+    .day-circle:active { transform: scale(0.9); }
+
+    .day-circle.selected { border: 2px solid #fff; z-index: 5; box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+    
+    .day-void { visibility: hidden; pointer-events: none; }
+
+    /* --- ESTADÍSTICAS RESPONSIVAS --- */
+    .stats-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+        gap: 12px; padding-bottom: 20px; 
+    }
+
+    .stat-card {
+        background: var(--glass-bg); border: 1px solid var(--glass-border);
+        border-radius: 18px; padding: 15px; display: flex; align-items: center; gap: 12px;
+    }
+
+    .stat-icon {
+        width: 36px; height: 36px; border-radius: 10px; background: var(--liquid-unified);
+        display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: #fff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2); flex-shrink: 0;
+    }
+
+    .stat-info { display: flex; flex-direction: column; }
+    .stat-count { font-size: 1.1rem; font-weight: 800; color: #fff; line-height: 1; }
+    .stat-name { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px;}
+
+</style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <div class="blob-container">
+            <div class="liquid-blob blob-1"></div>
+            <div class="liquid-blob blob-2"></div>
+        </div>
+
+        <div class="glass-overlay">
+            
+            <div class="nav-header">
+                <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i></a>
+                <span class="page-title">Hábitos</span>
+                <div class="nav-btn" style="opacity:0; pointer-events:none;"></div>
+            </div>
+
+            <div class="date-panel">
+                <div class="date-title" id="displayDate">HOY</div>
+                <div class="date-sub" id="displayFullDate">...</div>
+            </div>
+
+            <div class="wheel-wrapper">
+                <svg class="habit-svg" viewBox="0 0 200 200">
+                    <defs>
+                        <linearGradient id="gradUnified" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6a11cb;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#2575fc;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <path id="slice-1" class="slice" d="M100,100 L100,0 A100,100 0 0,1 186.6,50 Z" onclick="toggleHabit(1)"></path>
+                    <path id="slice-2" class="slice" d="M100,100 L186.6,50 A100,100 0 0,1 186.6,150 Z" onclick="toggleHabit(2)"></path>
+                    <path id="slice-3" class="slice" d="M100,100 L186.6,150 A100,100 0 0,1 100,200 Z" onclick="toggleHabit(3)"></path>
+                    <path id="slice-4" class="slice" d="M100,100 L100,200 A100,100 0 0,1 13.4,150 Z" onclick="toggleHabit(4)"></path>
+                    <path id="slice-5" class="slice" d="M100,100 L13.4,150 A100,100 0 0,1 13.4,50 Z" onclick="toggleHabit(5)"></path>
+                    <path id="slice-6" class="slice" d="M100,100 L13.4,50 A100,100 0 0,1 100,0 Z" onclick="toggleHabit(6)"></path>
+                    
+                    <circle cx="100" cy="100" r="35" fill="#0F0524" stroke="rgba(255,255,255,0.1)" stroke-width="1"></circle>
+                </svg>
+
+                <div class="icons-layer">
+                    <div id="icon-1" class="icon-spot" style="transform: rotate(0deg) translate(0, -75px) rotate(0deg);">
+                        <i class="fas fa-tooth"></i><span class="icon-label">Cepillo</span>
+                    </div>
+                    <div id="icon-2" class="icon-spot" style="transform: rotate(60deg) translate(0, -75px) rotate(-60deg);">
+                        <i class="fas fa-tint"></i><span class="icon-label">Agua</span>
+                    </div>
+                    <div id="icon-3" class="icon-spot" style="transform: rotate(120deg) translate(0, -75px) rotate(-120deg);">
+                        <i class="fas fa-utensils"></i><span class="icon-label">Comer</span>
+                    </div>
+                    <div id="icon-4" class="icon-spot" style="transform: rotate(180deg) translate(0, -75px) rotate(-180deg);">
+                        <i class="fas fa-dumbbell"></i><span class="icon-label">Gym</span>
+                    </div>
+                    <div id="icon-5" class="icon-spot" style="transform: rotate(240deg) translate(0, -75px) rotate(-240deg);">
+                        <i class="fas fa-hand-sparkles"></i><span class="icon-label">Uñas</span>
+                    </div>
+                    <div id="icon-6" class="icon-spot" style="transform: rotate(300deg) translate(0, -75px) rotate(-300deg);">
+                        <i class="fas fa-pencil-alt"></i><span class="icon-label">Dibujo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calendar-section">
+                <div class="section-title">HISTORIAL 2026</div>
+                <div class="matrix-container" id="matrixContainer">
+                    <div class="matrix-grid" id="matrixGrid"></div>
+                </div>
+            </div>
+
+            <div class="section-title" style="padding-left:0;">TOTAL ACUMULADO</div>
+            <div class="stats-grid">
+                
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-tooth"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="count-1">0</span>
+                        <span class="stat-name">Cepillo</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-tint"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="count-2">0</span>
+                        <span class="stat-name">Agua</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-utensils"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="count-3">0</span>
+                        <span class="stat-name">Comer</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-dumbbell"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="count-4">0</span>
+                        <span class="stat-name">Gym</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-hand-sparkles"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="count-5">0</span>
+                        <span class="stat-name">Uñas</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-pencil-alt"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="count-6">0</span>
+                        <span class="stat-name">Dibujo</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+<script>
+    let selectedDateObj = new Date();
+    // Color de relleno para los círculos del calendario (Violeta/Azul)
+    const COL_ACTIVE = '#6a11cb';
+    const COL_BG = 'rgba(255,255,255,0.03)';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initPage();
+    });
+
+    function initPage() {
+        renderHeader();
+        renderWheel();
+        renderMatrix();
+        calculateStats(); 
+        setTimeout(scrollToToday, 200);
+    }
+
+    function scrollToToday() {
+        const todayEl = document.querySelector('.day-circle.selected');
+        if(todayEl) {
+            const container = document.getElementById('matrixContainer');
+            const offset = todayEl.offsetLeft - (container.clientWidth / 2) + 15;
+            container.scrollTo({ left: offset, behavior: 'smooth' });
+        }
+    }
+
+    function renderHeader() {
+        const options = { weekday: 'long', day: 'numeric', month: 'long' };
+        const today = new Date();
+        const isToday = selectedDateObj.toDateString() === today.toDateString();
+        document.getElementById('displayDate').innerText = isToday ? "HOY" : "HISTORIAL";
+        const fullDate = selectedDateObj.toLocaleDateString('es-ES', options);
+        document.getElementById('displayFullDate').innerText = fullDate.charAt(0).toUpperCase() + fullDate.slice(1);
+    }
+
+    function getStorageKey(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const d = String(dateObj.getDate()).padStart(2, '0');
+        return `habits_${y}-${m}-${d}`;
+    }
+
+    // --- LÓGICA DE ESTADÍSTICAS ---
+    function calculateStats() {
+        let totals = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0};
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('habits_')) {
+                try {
+                    const habits = JSON.parse(localStorage.getItem(key));
+                    if (Array.isArray(habits)) {
+                        habits.forEach(id => {
+                            if (totals[id] !== undefined) totals[id]++;
+                        });
+                    }
+                } catch (e) { console.error("Error leyendo clave", key); }
+            }
+        }
+
+        for(let i=1; i<=6; i++) {
+            document.getElementById(`count-${i}`).innerText = totals[i];
+        }
+    }
+
+    function renderWheel() {
+        const key = getStorageKey(selectedDateObj);
+        const habits = JSON.parse(localStorage.getItem(key) || '[]');
+
+        for(let i=1; i<=6; i++) {
+            document.getElementById(`slice-${i}`).classList.remove('active');
+            const iconSpot = document.getElementById(`icon-${i}`);
+            iconSpot.classList.remove('active');
+            iconSpot.style.color = "rgba(255,255,255,0.3)";
+        }
+
+        habits.forEach(id => {
+            document.getElementById(`slice-${id}`).classList.add('active');
+            const iconSpot = document.getElementById(`icon-${id}`);
+            iconSpot.classList.add('active');
+            iconSpot.style.color = "#fff";
+        });
+    }
+
+    function toggleHabit(id) {
+        const key = getStorageKey(selectedDateObj);
+        let habits = JSON.parse(localStorage.getItem(key) || '[]');
+
+        if (habits.includes(id)) {
+            habits = habits.filter(h => h !== id);
+        } else {
+            habits.push(id);
+            if (navigator.vibrate) navigator.vibrate(40);
+        }
+
+        localStorage.setItem(key, JSON.stringify(habits));
+        renderWheel();
+        updateSpecificDayInMatrix(selectedDateObj);
+        calculateStats(); 
+    }
+
+    function updateSpecificDayInMatrix(dateObj) {
+        const dayId = `day-${dateObj.getMonth()}-${dateObj.getDate()}`;
+        const el = document.getElementById(dayId);
+        if(el) {
+            const key = getStorageKey(dateObj);
+            const habits = JSON.parse(localStorage.getItem(key) || '[]');
+            applyConicGradient(el, habits);
+        }
+    }
+
+    function applyConicGradient(element, habits) {
+        if (habits.length > 0) {
+            let gradientParts = [];
+            for(let i=1; i<=6; i++) {
+                const startPct = (i - 1) * 16.66;
+                const endPct = i * 16.66;
+                const color = habits.includes(i) ? COL_ACTIVE : 'rgba(255,255,255,0.05)';
+                gradientParts.push(`${color} ${startPct}% ${endPct}%`);
+            }
+            element.style.background = `conic-gradient(${gradientParts.join(', ')})`;
+        } else {
+            element.style.background = COL_BG;
+        }
+    }
+
+    function renderMatrix() {
+        const grid = document.getElementById('matrixGrid');
+        grid.innerHTML = '';
+
+        const spacer = document.createElement('div');
+        spacer.className = 'header-spacer';
+        grid.appendChild(spacer);
+
+        for (let i = 1; i <= 31; i++) {
+            const num = document.createElement('div');
+            num.className = 'header-num';
+            num.innerText = i;
+            grid.appendChild(num);
+        }
+
+        const months = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+        const year = 2026;
+
+        months.forEach((mName, mIndex) => {
+            const label = document.createElement('div');
+            label.className = 'month-label';
+            label.innerText = mName;
+            grid.appendChild(label);
+
+            const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
+
+            for (let d = 1; d <= 31; d++) {
+                const cell = document.createElement('div');
+                
+                if (d > daysInMonth) {
+                    cell.className = 'day-void'; 
+                } else {
+                    const date = new Date(year, mIndex, d);
+                    cell.className = 'day-circle';
+                    cell.id = `day-${mIndex}-${d}`; 
+
+                    if(date.toDateString() === selectedDateObj.toDateString()) {
+                        cell.classList.add('selected');
+                    }
+
+                    cell.onclick = () => {
+                        selectedDateObj = date;
+                        renderHeader();
+                        renderWheel();
+                        document.querySelectorAll('.day-circle').forEach(c => c.classList.remove('selected'));
+                        cell.classList.add('selected');
+                    };
+
+                    const key = getStorageKey(date);
+                    const habits = JSON.parse(localStorage.getItem(key) || '[]');
+                    applyConicGradient(cell, habits);
+                }
+                grid.appendChild(cell);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

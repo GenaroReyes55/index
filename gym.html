@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Gym Hub</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="iconog.png">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        /* --- PALETA INDEX (LIQUID GLASS) --- */
+        --bg-deep: #0F0524;
+        --glass-bg: rgba(255, 255, 255, 0.04);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-blur: 30px;
+        --text-white: #e0e0e0;
+        --text-muted: rgba(255, 255, 255, 0.5);
+        
+        /* Acentos Morado/Azul/Rosa */
+        --accent-primary: #6a11cb;
+        --accent-secondary: #2575fc;
+        --accent-highlight: #f72585;
+        --grad-liquid: linear-gradient(135deg, #6a11cb, #2575fc);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    /* --- FONDO GLOBAL --- */
+    body {
+        background-color: #050110; 
+        color: var(--text-white);
+    }
+
+    /* --- CONTENEDOR RESPONSIVO --- */
+    .mobile-container {
+        width: 100%; max-width: 800px; min-height: 100vh;
+        background-color: var(--bg-deep); position: relative;
+        overflow-x: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        margin: 0 auto; 
+    }
+
+    /* --- MÁSCARA PARA EL FONDO ANIMADO --- */
+    .blob-container {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        overflow: hidden; z-index: 0; pointer-events: none;
+    }
+
+    .liquid-blob {
+        position: absolute; filter: blur(60px); opacity: 0.6;
+        animation: moveLiquid 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .blob-1 {
+        top: -5%; left: -20%; width: 400px; height: 400px;
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        border-radius: 40% 60% 70% 30%;
+    }
+    .blob-2 {
+        bottom: -5%; right: -20%; width: 350px; height: 350px;
+        background: linear-gradient(to left, #f72585, #7209b7);
+        border-radius: 60% 40% 30% 70%; animation-delay: -5s;
+    }
+    @keyframes moveLiquid {
+        0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+        100% { transform: translate(30px, 30px) rotate(10deg) scale(1.1); }
+    }
+
+    /* --- UI PRINCIPAL --- */
+    .glass-overlay {
+        min-height: 100vh; width: 100%;
+        backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
+        background: rgba(15, 5, 36, 0.5);
+        padding: calc(env(safe-area-inset-top, 59px) + 20px) 20px calc(env(safe-area-inset-bottom, 34px) + 30px) 20px;
+        display: flex; flex-direction: column; gap: 25px;
+        position: relative; z-index: 1;
+    }
+
+    /* HEADER */
+    .nav-header { display: flex; align-items: center; justify-content: space-between; }
+    .nav-btn {
+        width: 45px; height: 45px; border-radius: 50%;
+        background: var(--glass-bg); border: 1px solid var(--glass-border);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-white); text-decoration: none; font-size: 1.1rem;
+        transition: 0.2s;
+    }
+    .nav-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
+    .page-title { font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }
+
+    /* --- PANEL XP --- */
+    .xp-card {
+        background: var(--glass-bg); border: 1px solid var(--glass-border);
+        border-radius: 30px; padding: 25px; position: relative; overflow: hidden;
+        display: flex; align-items: center; justify-content: space-between;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    
+    .xp-info { z-index: 2; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    
+    .xp-label { 
+        font-size: 0.65rem; color: var(--text-muted); font-weight: 700; 
+        letter-spacing: 2px; text-transform: uppercase; 
+    }
+    
+    .phase-title { 
+        font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1; 
+        text-shadow: 0 0 15px rgba(106, 17, 203, 0.4); margin-bottom: 5px;
+    }
+    
+    .phase-desc { font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-bottom: 12px; }
+
+    .mission-data { display: flex; gap: 15px; font-family: monospace; font-size: 0.7rem; color: var(--accent-highlight); }
+    .mission-item span { color: #fff; font-weight: 700; }
+
+    /* ANILLO DE PROGRESO */
+    .ring-wrapper { position: relative; width: 85px; height: 85px; flex-shrink: 0; }
+    .xp-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+    .ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 6; }
+    .ring-fill {
+        fill: none; stroke: url(#gradLiquid); stroke-width: 6; stroke-linecap: round;
+        stroke-dasharray: 220; stroke-dashoffset: 220;
+        transition: stroke-dashoffset 1.5s ease;
+        filter: drop-shadow(0 0 8px rgba(37, 117, 252, 0.5));
+    }
+    .xp-val { 
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        font-family: monospace; font-size: 0.9rem; font-weight: 800; color: #fff;
+    }
+
+    /* BARRA SEMANAL */
+    .weekly-bar {
+        background: rgba(255,255,255,0.03); border-radius: 16px; padding: 12px 20px;
+        display: flex; justify-content: space-between; align-items: center;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    .wb-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 1px; }
+    .wb-val { font-size: 1.1rem; font-weight: 800; color: var(--accent-secondary); }
+
+    /* RUTINAS - GRID PARA RESPONSIVO */
+    .routine-list { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+        gap: 20px; 
+        padding-bottom: 20px; 
+    }
+
+    .day-card {
+        background: var(--glass-bg); border: 1px solid var(--glass-border);
+        border-radius: 24px; overflow: hidden; transition: 0.3s; position: relative;
+        display: flex; flex-direction: column;
+    }
+
+    /* Día Activo */
+    .day-card.active-day {
+        background: rgba(106, 17, 203, 0.1); border-color: rgba(106, 17, 203, 0.4);
+        box-shadow: 0 0 25px rgba(106, 17, 203, 0.2);
+    }
+    .active-badge {
+        position: absolute; top: 18px; right: 18px;
+        font-size: 0.55rem; background: var(--grad-liquid); color: #fff;
+        padding: 4px 8px; border-radius: 6px; font-weight: 800; letter-spacing: 1px;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+
+    .day-head { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .day-name { font-size: 1.1rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .day-focus { font-size: 0.8rem; color: var(--accent-highlight); margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .day-note {
+        font-size: 0.75rem; color: var(--text-muted); background: rgba(0,0,0,0.2);
+        padding: 8px 12px; margin-top: 10px; border-radius: 8px; font-style: italic;
+        border-left: 2px solid var(--accent-secondary);
+    }
+
+    .ex-list { padding: 10px 20px 20px 20px; flex: 1; }
+    
+    .ex-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .ex-row:last-child { border-bottom: none; }
+
+    .ex-info { display: flex; flex-direction: column; }
+    .ex-name { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .ex-meta { font-size: 0.7rem; color: var(--text-muted); font-family: monospace; }
+    .highlight { color: var(--accent-secondary); font-weight: 700; }
+
+    /* CHECKBOXES */
+    .tac-check {
+        width: 32px; height: 32px;
+        background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.15);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: 0.3s; border-radius: 8px; 
+    }
+    .tac-check i { font-size: 0.8rem; color: #fff; transform: scale(0); transition: 0.2s; }
+    
+    .tac-check.checked {
+        background: var(--grad-liquid); border: none;
+        box-shadow: 0 0 10px var(--accent-primary);
+    }
+    .tac-check.checked i { transform: scale(1); }
+
+    /* Confeti */
+    .spark { position: absolute; width: 4px; height: 4px; border-radius: 50%; pointer-events: none; z-index: 100; }
+
+</style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <div class="blob-container">
+            <div class="liquid-blob blob-1"></div>
+            <div class="liquid-blob blob-2"></div>
+        </div>
+
+        <div class="glass-overlay">
+            
+            <div class="nav-header">
+                <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i></a>
+                <span class="page-title">Gym</span>
+                <div class="nav-btn" style="opacity:0; pointer-events:none;"></div>
+            </div>
+
+            <div class="xp-card">
+                <div class="xp-info">
+                    <div class="xp-label">ESTADO FÍSICO</div>
+                    <div class="phase-title" id="xpState">CARGANDO</div>
+                    <div class="phase-desc" id="xpDesc">...</div>
+                    
+                    <div class="mission-data">
+                        <div class="mission-item">META: <span id="xpWeight">--</span></div>
+                        <div class="mission-item">PROGRESO: <span id="xpTxt">0%</span></div>
+                    </div>
+                </div>
+                
+                <div class="ring-wrapper">
+                    <svg class="xp-svg" viewBox="0 0 80 80">
+                        <defs>
+                            <linearGradient id="gradLiquid" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#6a11cb;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#2575fc;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="ring-bg" cx="40" cy="40" r="35"></circle>
+                        <circle class="ring-fill" cx="40" cy="40" r="35" id="xpRingFill"></circle>
+                    </svg>
+                    <div class="xp-val" id="xpPercent">0%</div>
+                </div>
+            </div>
+
+            <div class="weekly-bar">
+                <span class="wb-label">COMPLETADO SEMANAL</span>
+                <span class="wb-val" id="totalPercent">0%</span>
+            </div>
+
+            <div class="routine-list" id="routineList"></div>
+
+        </div>
+    </div>
+
+<script>
+    const xpData = [
+        { date: '2026-03-02', pct: 0,  weight: '48-49 kg', title: 'INICIO', desc: 'Fase de adaptación.' },
+        { date: '2026-04-01', pct: 5,  weight: '50-51 kg', title: 'NOVATO', desc: 'Postura mejorada.' },
+        { date: '2026-05-01', pct: 12, weight: '52-53 kg', title: 'DESPEGANDO', desc: 'Hombros visibles.' },
+        { date: '2026-06-01', pct: 20, weight: '54-55 kg', title: 'VISIBLE', desc: 'La ropa ajusta mejor.' },
+        { date: '2026-07-01', pct: 30, weight: '56-57 kg', title: 'ATLÉTICO', desc: 'Forma en V.' },
+        { date: '2026-08-01', pct: 40, weight: '57-58 kg', title: 'SÓLIDO', desc: 'Brazos formados.' },
+        { date: '2026-09-01', pct: 48, weight: '58-59 kg', title: 'PROPORCIÓN', desc: 'Piernas a punto.' },
+        { date: '2026-10-01', pct: 55, weight: '60-61 kg', title: 'ESTÉTICO', desc: 'Abdomen plano.' },
+        { date: '2026-11-01', pct: 62, weight: '61-62 kg', title: 'FUERTE', desc: 'Densidad real.' },
+        { date: '2026-12-01', pct: 68, weight: '62-63 kg', title: 'DOMINANTE', desc: 'Presencia física.' },
+        { date: '2027-01-01', pct: 74, weight: '63-64 kg', title: 'IMPARABLE', desc: 'Físico funcional.' },
+        { date: '2027-02-01', pct: 80, weight: '64-65 kg', title: 'ELITE', desc: 'Base terminada.' },
+        { date: '2027-03-01', pct: 85, weight: 'AJUSTE',   title: 'MADUREZ', desc: 'Calidad superior.' },
+        { date: '2027-09-01', pct: 100, weight: '65-67 kg', title: 'PRIME', desc: 'Objetivo final.' }
+    ];
+
+    const routineData = [
+        {
+            day: "Lunes",
+            focus: "PIERNA COMPLETA",
+            icon: "fa-person-running",
+            note: "Si comiste poco: quita 1 serie de sentadilla.",
+            exercises: [
+                { name: "Sentadilla", sets: 4, reps: "6-8" },
+                { name: "Prensa", sets: 3, reps: "10-12" },
+                { name: "Peso Muerto Rumano", sets: 3, reps: "8-10" },
+                { name: "Zancadas", sets: 3, reps: "10/p" },
+                { name: "Gemelos", sets: 3, reps: "12-15" }
+            ]
+        },
+        {
+            day: "Martes",
+            focus: "PECHO + TRÍCEPS",
+            icon: "fa-hand-fist",
+            exercises: [
+                { name: "Press Banca", sets: 4, reps: "6-8" },
+                { name: "Press Inclinado", sets: 3, reps: "8-10" },
+                { name: "Fondos", sets: 3, reps: "Fallo" },
+                { name: "Ext. Tríceps", sets: 3, reps: "10-12" }
+            ]
+        },
+        {
+            day: "Miércoles",
+            focus: "DESCANSO ACTIVO",
+            icon: "fa-battery-half",
+            note: "Caminar y estirar. Nada intenso.",
+            exercises: [
+                { name: "Caminar", sets: 1, reps: "30 min" },
+                { name: "Estiramientos", sets: 1, reps: "10 min" }
+            ]
+        },
+        {
+            day: "Jueves",
+            focus: "PIERNA + GLÚTEO",
+            icon: "fa-shoe-prints",
+            exercises: [
+                { name: "Hip Thrust", sets: 4, reps: "8-10" },
+                { name: "Curl Femoral", sets: 3, reps: "10-12" },
+                { name: "Sentadilla Búlgara", sets: 3, reps: "8-10" },
+                { name: "Ext. Cuádriceps", sets: 2, reps: "12-15" },
+                { name: "Gemelos", sets: 3, reps: "15" }
+            ]
+        },
+        {
+            day: "Viernes",
+            focus: "ESPALDA + BÍCEPS",
+            icon: "fa-child-reaching",
+            exercises: [
+                { name: "Dominadas", sets: 4, reps: "6-10" },
+                { name: "Remo Barra", sets: 3, reps: "8-10" },
+                { name: "Remo Máquina", sets: 2, reps: "10-12" },
+                { name: "Curl Barra", sets: 3, reps: "8-10" },
+                { name: "Curl Martillo", sets: 2, reps: "10-12" }
+            ]
+        },
+        {
+            day: "Sábado",
+            focus: "HOMBRO + CORE",
+            icon: "fa-dumbbell",
+            exercises: [
+                { name: "Press Militar", sets: 3, reps: "6-8" },
+                { name: "Elev. Laterales", sets: 3, reps: "12-15" },
+                { name: "Posterior", sets: 3, reps: "12" },
+                { name: "Abs con peso", sets: 4, reps: "Fallo" }
+            ]
+        }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateXP();
+        renderRoutine();
+        updateStats();
+    });
+
+    function updateXP() {
+        const now = new Date();
+        let current = xpData[0];
+        let next = xpData[xpData.length - 1];
+        let progress = 0;
+
+        for (let i = 0; i < xpData.length - 1; i++) {
+            const phaseDate = new Date(xpData[i].date);
+            const nextDate = new Date(xpData[i+1].date);
+            if (now >= phaseDate && now < nextDate) {
+                current = xpData[i]; next = xpData[i+1];
+                const totalTime = nextDate - phaseDate;
+                const elapsedTime = now - phaseDate;
+                progress = current.pct + ((next.pct - current.pct) * (elapsedTime / totalTime));
+                break;
+            } else if (now >= new Date(xpData[xpData.length-1].date)) {
+                current = xpData[xpData.length-1]; progress = 100;
+            }
+        }
+        
+        document.getElementById('xpState').textContent = current.title;
+        document.getElementById('xpDesc').textContent = current.desc;
+        document.getElementById('xpTxt').textContent = Math.floor(progress) + '%';
+        document.getElementById('xpPercent').textContent = Math.floor(progress) + '%';
+        document.getElementById('xpWeight').textContent = current.weight; 
+        
+        const offset = 220 - (progress / 100) * 220;
+        document.getElementById('xpRingFill').style.strokeDashoffset = offset;
+    }
+
+    function renderRoutine() {
+        const container = document.getElementById('routineList');
+        const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+        let todayIndex = new Date().getDay() - 1; 
+        if (todayIndex < 0) todayIndex = 6; 
+        const todayName = days[todayIndex];
+
+        routineData.forEach((day, dIndex) => {
+            const isActive = day.day === todayName;
+            const card = document.createElement('div');
+            card.className = `day-card ${isActive ? 'active-day' : ''}`;
+            
+            let noteHtml = day.note ? `<div class="day-note"><i class="fas fa-circle-info"></i> ${day.note}</div>` : '';
+            let badgeHtml = isActive ? `<div class="active-badge">HOY</div>` : '';
+
+            let html = `
+                ${badgeHtml}
+                <div class="day-head">
+                    <div class="day-name"><i class="fas ${day.icon}"></i> ${day.day}</div>
+                    <div class="day-focus">${day.focus}</div>
+                    ${noteHtml}
+                </div>
+                <div class="ex-list">
+            `;
+            
+            day.exercises.forEach((ex, eIndex) => {
+                const uniqueId = `g_${dIndex}_${eIndex}`; 
+                const isChecked = localStorage.getItem(uniqueId) === 'true';
+                html += `
+                    <div class="ex-row">
+                        <div class="ex-info">
+                            <span class="ex-name">${ex.name}</span>
+                            <span class="ex-meta"><span class="highlight">${ex.sets}</span> SETS x <span class="highlight">${ex.reps}</span></span>
+                        </div>
+                        <div class="tac-check ${isChecked ? 'checked' : ''}" onclick="toggleCheck(this, '${uniqueId}')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            card.innerHTML = html;
+            container.appendChild(card);
+            
+            if(isActive) {
+                setTimeout(() => card.scrollIntoView({behavior: "smooth", block: "center"}), 500);
+            }
+        });
+    }
+
+    window.toggleCheck = function(btn, id) {
+        btn.classList.toggle('checked');
+        localStorage.setItem(id, btn.classList.contains('checked'));
+        updateStats();
+        if(btn.classList.contains('checked')) {
+            if(navigator.vibrate) navigator.vibrate(20);
+            spawnSparks(btn);
+        }
+    };
+
+    function updateStats() {
+        const total = document.querySelectorAll('.tac-check').length;
+        const checked = document.querySelectorAll('.tac-check.checked').length;
+        const pct = total === 0 ? 0 : Math.round((checked / total) * 100);
+        document.getElementById('totalPercent').textContent = pct + "%";
+    }
+
+    function spawnSparks(btn) {
+        const colors = ['#6a11cb', '#2575fc', '#fff'];
+        const rect = btn.getBoundingClientRect();
+        for(let i=0; i<8; i++) {
+            const s = document.createElement('div');
+            s.className = 'spark';
+            s.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+            s.style.left = (rect.left + 16) + 'px';
+            s.style.top = (rect.top + window.scrollY + 16) + 'px'; 
+            document.body.appendChild(s);
+            
+            const angle = Math.random() * Math.PI * 2;
+            const vel = Math.random() * 4 + 2;
+            let dx = Math.cos(angle) * vel;
+            let dy = Math.sin(angle) * vel;
+            let op = 1;
+            
+            const anim = setInterval(() => {
+                s.style.left = (parseFloat(s.style.left) + dx) + 'px';
+                s.style.top = (parseFloat(s.style.top) + dy) + 'px';
+                op -= 0.05; s.style.opacity = op;
+                if(op<=0) { clearInterval(anim); s.remove(); }
+            }, 20);
+        }
+    }
+</script>
+</body>
+</html>
