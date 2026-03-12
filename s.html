@@ -278,9 +278,9 @@
                             <span class="lbl">TARJETA</span>
                             <input type="text" class="money-input" id="tarjeta" value="$0" inputmode="decimal">
                         </div>
-                        <div class="input-row" style="opacity:0.3;">
-                            <span class="lbl">AHORRO</span>
-                            <input type="text" class="money-input" value="--" disabled>
+                        <div class="input-row">
+                            <span class="lbl">MONEDAS</span>
+                            <input type="text" class="money-input" id="monedas" value="$0" inputmode="decimal">
                         </div>
                     </div>
 
@@ -288,26 +288,12 @@
                 </div>
             </div>
 
-            <a href="ahorro.html" class="goal-widget">
-                <div class="gw-header">
-                    <span class="gw-title"><i class="fas fa-piggy-bank"></i> Progreso de Meta</span>
-                    <div class="gw-icon"><i class="fas fa-chevron-right"></i></div>
-                </div>
-                <div class="gw-stats">
-                    <span class="gw-llevas">LLEVAS: <span id="gwLlevas">$0.00</span></span>
-                    <span class="gw-faltan" id="gwFaltanContainer">FALTAN: <span id="gwFaltan">$0.00</span></span>
-                </div>
-                <div class="gw-track">
-                    <div class="gw-fill" id="gwProgress"></div>
-                </div>
-            </a>
-
         </div>
     </div>
 
 <script>
     // --- LÓGICA FINANCIERA ---
-    const inputs = ["cameDebe", "dolyDebe", "deudaComunitaria", "cartera", "tarjeta"];
+    const inputs = ["cameDebe", "dolyDebe", "deudaComunitaria", "cartera", "tarjeta", "monedas"];
 
     const parseMoney = (val) => parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
     const formatMoney = (val) => "$" + val.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
@@ -339,9 +325,10 @@
         
         const vCart = parseMoney(document.getElementById("cartera").value);
         const vTarj = parseMoney(document.getElementById("tarjeta").value);
+        const vMonedas = parseMoney(document.getElementById("monedas").value);
 
         const totalPending = vCame + vDoly + vCom;
-        const totalLiquid = vCart + vTarj;         
+        const totalLiquid = vCart + vTarj + vMonedas;         
         const totalCapital = totalPending + totalLiquid; 
 
         document.getElementById("totalPending").innerText = formatMoney(totalPending);
@@ -382,21 +369,6 @@
             statusEl.style.color = "var(--neon-green)";
             statusEl.style.borderColor = "var(--neon-green)";
             statusEl.style.background = "rgba(0, 242, 96, 0.1)";
-        }
-
-        // Actualizar WIDGET DE AHORRO
-        const currentMeta = parseFloat(localStorage.getItem('ahorro_meta')) || 3000;
-        document.getElementById("gwLlevas").innerText = formatMoney(totalCapital);
-        
-        let faltan = currentMeta - totalCapital;
-        let pct = Math.min((totalCapital / currentMeta) * 100, 100);
-        document.getElementById("gwProgress").style.width = Math.max(0, pct) + "%";
-
-        let faltanContainer = document.getElementById("gwFaltanContainer");
-        if (faltan <= 0) {
-            faltanContainer.innerHTML = `<span style="color:var(--neon-green)">¡META ALCANZADA!</span>`;
-        } else {
-            faltanContainer.innerHTML = `FALTAN: <span id="gwFaltan">${formatMoney(faltan)}</span>`;
         }
     }
 </script>

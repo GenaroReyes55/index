@@ -285,12 +285,13 @@
     </div>
 
     <script>
+        // Actualizamos la base de datos de los horarios agregando el atributo "r" de Salón.
         const scheduleDB = {
-            1: [{ s: 18, d: 1, n: "Ecuaciones Dif." }], // Lunes
-            2: [{ s: 14, d: 2, n: "POO" }, { s: 18, d: 2, n: "Ecuaciones Dif." }], // Martes
+            1: [{ s: 18, d: 1, n: "Ecuaciones Dif.", r: "E10" }], // Lunes
+            2: [{ s: 14, d: 2, n: "POO", r: "ED6" }, { s: 18, d: 2, n: "Ecuaciones Dif.", r: "Q4" }], // Martes
             3: [], // Miércoles
-            4: [{ s: 17, d: 2, n: "POO" }, { s: 19, d: 2, n: "Ecuaciones Dif." }], // Jueves
-            5: [{ s: 14, d: 1, n: "POO" }] // Viernes
+            4: [{ s: 17, d: 2, n: "POO", r: "Q4" }, { s: 19, d: 2, n: "Ecuaciones Dif.", r: "E9" }], // Jueves
+            5: [{ s: 14, d: 1, n: "POO", r: "E10" }] // Viernes
         };
 
         const gymRoutineDB = ["Descanso", "Pierna Completa", "Pecho + Tríceps", "Descanso Activo", "Pierna + Glúteo", "Espalda + Bíceps", "Hombro + Core"];
@@ -316,14 +317,26 @@
 
         function loadDashboard() {
             // Actualizar Finanzas
-            const assets = getMoneyValue("cartera") + getMoneyValue("tarjeta");
+            const assets = getMoneyValue("cartera") + getMoneyValue("tarjeta") + getMoneyValue("monedas");
             const debts = getMoneyValue("cameDebe") + getMoneyValue("dolyDebe") + getMoneyValue("deudaComunitaria");
             const total = assets + debts;
             document.getElementById('moneyData').innerText = "$" + total.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
 
             // Actualizar Ruta Meta (Ahorro)
             const currentMeta = parseFloat(localStorage.getItem('ahorro_meta')) || 3000;
-            const progressPct = Math.min((total / currentMeta) * 100, 100);
+            
+            let baseAmount = parseFloat(localStorage.getItem('ahorro_base_amount')) || 0;
+            let saldoReal = baseAmount;
+            let allEvents = JSON.parse(localStorage.getItem('ahorro_events') || '[]');
+            let checkedStates = JSON.parse(localStorage.getItem('ahorro_checked') || '{}');
+            
+            allEvents.forEach(ev => {
+                if (checkedStates[ev.id]) {
+                    saldoReal += parseFloat(ev.a);
+                }
+            });
+
+            const progressPct = Math.min((saldoReal / currentMeta) * 100, 100);
             const metaEl = document.getElementById('metaData');
             
             if (progressPct >= 100) {
@@ -364,12 +377,17 @@
             if (scheduleDB[day]) {
                 const currentClass = scheduleDB[day].find(c => hour >= c.s && hour < (c.s + c.d));
                 if (currentClass) {
-                    statusText = "En curso: " + currentClass.n;
+                    // Si estás en clase en este momento
+                    statusText = "En curso: " + currentClass.n + " (" + currentClass.r + ")";
                     isActive = true;
                 } else {
                     const nextClass = scheduleDB[day].find(c => c.s > hour);
-                    if(nextClass) statusText = `Siguiente: ${nextClass.n} (${formatTime(nextClass.s)})`;
-                    else statusText = "Terminaste por hoy";
+                    if(nextClass) {
+                        // Si falta poco para la siguiente clase
+                        statusText = `Siguiente: ${nextClass.n} (${nextClass.r}) a las ${formatTime(nextClass.s)}`;
+                    } else {
+                        statusText = "Terminaste por hoy";
+                    }
                 }
             } else {
                 statusText = "Fin de semana";

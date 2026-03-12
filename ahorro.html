@@ -23,6 +23,7 @@
         --neon-green: #00f260;
         --neon-red: #ff3333;
         --neon-blue: #2575fc;
+        --neon-gold: #f5af19; 
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -95,7 +96,7 @@
     .fin-table tr:last-child td { border-bottom: none; }
 
     .col-date { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; width: 45px; }
-    .col-desc { font-size: 0.8rem; color: #fff; font-weight: 600; }
+    .col-desc { font-size: 0.8rem; color: #fff; font-weight: 600; display: flex; flex-direction: column; gap: 2px;}
     .col-desc i { font-size: 0.7rem; margin-right: 5px; opacity: 0.7; }
     .col-amt { font-family: 'Fira Code', monospace; font-size: 0.85rem; text-align: right; font-weight: 700; }
     
@@ -117,7 +118,20 @@
     .sel-check i { font-size: 0.6rem; color: #fff; transform: scale(0); transition: 0.2s; }
     .sel-check.checked i { transform: scale(1); }
 
-    /* --- MODALES EMERGENTES --- */
+    /* PROYECCIÓN TOTAL FOOTER */
+    .projection-bar {
+        background: linear-gradient(135deg, rgba(37, 117, 252, 0.1), rgba(15, 5, 36, 0.6));
+        border: 1px solid rgba(37, 117, 252, 0.4);
+        border-radius: 20px; padding: 18px 20px;
+        display: flex; justify-content: space-between; align-items: center;
+        margin-top: 5px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+    .proj-label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; display: flex; flex-direction: column; gap: 4px;}
+    .proj-label span { color: #fff; font-size: 0.6rem; opacity: 0.6; font-weight: 600; letter-spacing: 0;}
+    .proj-amount { font-size: 1.6rem; font-weight: 800; color: #fff; font-family: 'Fira Code', monospace; transition: 0.3s; }
+
+    /* MODALES EMERGENTES */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.6); z-index: 100;
@@ -152,10 +166,14 @@
     .save-btn:active { transform: scale(0.95); }
     .save-btn.green { background: var(--neon-green); box-shadow: 0 5px 15px rgba(0, 242, 96, 0.4); }
 
-    /* SELECCIÓN DE ÍCONOS EN EL MODAL */
+    /* SELECCIÓN DE ÍCONOS EN EL MODAL MEJORADA (SCROLL) */
     .icon-grid {
         display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 5px;
+        max-height: 140px; overflow-y: auto; padding-right: 5px;
     }
+    .icon-grid::-webkit-scrollbar { width: 4px; }
+    .icon-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    
     .icon-opt {
         height: 38px; border-radius: 10px;
         background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
@@ -165,6 +183,11 @@
     .icon-opt.active {
         background: var(--neon-blue); color: #fff; border-color: transparent;
         box-shadow: 0 0 10px rgba(37, 117, 252, 0.4); transform: scale(1.1);
+    }
+
+    .badge-tentative {
+        font-size: 0.55rem; color: var(--neon-gold); border: 1px solid var(--neon-gold);
+        border-radius: 4px; padding: 1px 4px; width: fit-content; font-weight: 800; letter-spacing: 0.5px;
     }
 
 </style>
@@ -188,7 +211,10 @@
             <div class="goal-card">
                 <div class="goal-header">
                     <div>
-                        <div class="goal-title">PROGRESO ACTUAL</div>
+                        <div class="goal-title" style="display:flex; align-items:center; gap:8px;">
+                            PROGRESO ACTUAL 
+                            <i class="fas fa-edit" style="cursor:pointer; color:var(--neon-blue); font-size:0.9rem;" onclick="toggleBaseModal(true)"></i>
+                        </div>
                         <div class="goal-amount" id="goalAmount">Cargando...</div>
                     </div>
                     <div class="goal-target" onclick="toggleMetaModal(true)">
@@ -232,6 +258,14 @@
                         </tbody>
                 </table>
             </div>
+
+            <div class="projection-bar">
+                <div class="proj-label">
+                    PROYECCIÓN TOTAL
+                    <span>Base + Todos los eventos</span>
+                </div>
+                <div class="proj-amount" id="projAmount">$0.00</div>
+            </div>
             
         </div>
 
@@ -248,30 +282,58 @@
                         <div class="icon-opt active" onclick="selectIcon('fa-bolt', this)"><i class="fas fa-bolt"></i></div>
                         <div class="icon-opt" onclick="selectIcon('fa-arrow-down', this)"><i class="fas fa-arrow-down"></i></div>
                         <div class="icon-opt" onclick="selectIcon('fa-arrow-up', this)"><i class="fas fa-arrow-up"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-credit-card', this)"><i class="fas fa-credit-card"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-coins', this)"><i class="fas fa-coins"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-piggy-bank', this)"><i class="fas fa-piggy-bank"></i></div>
+                        
                         <div class="icon-opt" onclick="selectIcon('fa-bus', this)"><i class="fas fa-bus"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-car', this)"><i class="fas fa-car"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-plane', this)"><i class="fas fa-plane"></i></div>
                         <div class="icon-opt" onclick="selectIcon('fa-utensils', this)"><i class="fas fa-utensils"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-mug-hot', this)"><i class="fas fa-mug-hot"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-pizza-slice', this)"><i class="fas fa-pizza-slice"></i></div>
+                        
                         <div class="icon-opt" onclick="selectIcon('fa-shopping-cart', this)"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-bag-shopping', this)"><i class="fas fa-bag-shopping"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-shirt', this)"><i class="fas fa-shirt"></i></div>
                         <div class="icon-opt" onclick="selectIcon('fa-gift', this)"><i class="fas fa-gift"></i></div>
                         <div class="icon-opt" onclick="selectIcon('fa-gamepad', this)"><i class="fas fa-gamepad"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-music', this)"><i class="fas fa-music"></i></div>
+                        
+                        <div class="icon-opt" onclick="selectIcon('fa-house', this)"><i class="fas fa-house"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-pills', this)"><i class="fas fa-pills"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-dumbbell', this)"><i class="fas fa-dumbbell"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-scissors', this)"><i class="fas fa-scissors"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-paw', this)"><i class="fas fa-paw"></i></div>
                         <div class="icon-opt" onclick="selectIcon('fa-heart', this)"><i class="fas fa-heart"></i></div>
+
                         <div class="icon-opt" onclick="selectIcon('fa-mobile-alt', this)"><i class="fas fa-mobile-alt"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-laptop', this)"><i class="fas fa-laptop"></i></div>
                         <div class="icon-opt" onclick="selectIcon('fab fa-spotify', this)"><i class="fab fa-spotify"></i></div>
                         <div class="icon-opt" onclick="selectIcon('fa-tv', this)"><i class="fas fa-tv"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-graduation-cap', this)"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="icon-opt" onclick="selectIcon('fa-briefcase', this)"><i class="fas fa-briefcase"></i></div>
                     </div>
                 </div>
 
                 <div class="form-group" style="margin-top: 5px;">
                     <label>Concepto</label>
-                    <input type="text" id="evName" class="glass-input" placeholder="Ej: Recarga Telcel, Spotify...">
+                    <input type="text" id="evName" class="glass-input" placeholder="Ej: Recarga Telcel, Cumpleaños...">
                 </div>
                 <div class="form-group">
                     <label>Monto</label>
-                    <input type="number" id="evAmount" class="glass-input" placeholder="Pon '-' si es gasto. Ej: -74">
+                    <input type="number" id="evAmount" class="glass-input" placeholder="Pon '-' si es gasto. Ej: -74 o 500">
                 </div>
                 <div class="form-group">
                     <label>Fecha</label>
                     <input type="date" id="evDate" class="glass-input">
                 </div>
+
+                <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 5px;">
+                    <input type="checkbox" id="evTentative" style="width: 18px; height: 18px; accent-color: var(--neon-gold);">
+                    <label style="margin: 0; cursor: pointer;" for="evTentative">Es un evento tentativo / posible</label>
+                </div>
+
                 <button class="save-btn" onclick="saveEvent()">GUARDAR EVENTO</button>
             </div>
         </div>
@@ -290,57 +352,52 @@
             </div>
         </div>
 
+        <div class="modal-overlay" id="baseModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-wallet" style="color: var(--neon-blue); margin-right: 8px;"></i> Dinero Inicial</h3>
+                    <button class="close-btn" onclick="toggleBaseModal(false)"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="form-group">
+                    <label>¿Cuánto dinero tienes en tu cuenta/cartera ahora mismo?</label>
+                    <input type="number" id="baseInput" class="glass-input" placeholder="Ej: 1500">
+                </div>
+                <button class="save-btn" onclick="saveBaseAmount()">GUARDAR DINERO BASE</button>
+            </div>
+        </div>
+
     </div>
 
 <script>
     const formatMoney = (val) => "$" + val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const parseMoney = (val) => parseFloat((val||"").replace(/[^0-9.-]/g, '')) || 0;
 
-    const baseEventsFallback = [
-        { id: 'b01', d: '2026-03-08', n: 'Depósito', a: 600, ic: 'fa-arrow-down' },
-        { id: 'b02', d: '2026-03-08', n: 'Pasajes', a: -88, ic: 'fa-bus' },
-        { id: 'b03', d: '2026-03-15', n: 'Depósito', a: 600, ic: 'fa-arrow-down' },
-        { id: 'b04', d: '2026-03-15', n: 'Pasajes', a: -88, ic: 'fa-bus' },
-        { id: 'b05', d: '2026-03-17', n: 'Deuda', a: -627.86, ic: 'fa-credit-card' },
-        { id: 'b06', d: '2026-03-19', n: 'Cumple', a: 500, ic: 'fa-gift' },
-        { id: 'b07', d: '2026-03-21', n: 'Flores', a: -300, ic: 'fa-leaf' },
-        { id: 'b08', d: '2026-03-22', n: 'Depósito', a: 600, ic: 'fa-arrow-down' },
-        { id: 'b09', d: '2026-03-22', n: 'Pasajes', a: -88, ic: 'fa-bus' },
-        { id: 'b10', d: '2026-03-22', n: 'HBO', a: -49, ic: 'fa-tv' },
-        { id: 'b11', d: '2026-03-23', n: 'Spotify', a: -74, ic: 'fab fa-spotify' },
-        { id: 'b12', d: '2026-03-27', n: 'Telcel', a: -250, ic: 'fa-mobile-alt' },
-        { id: 'b13', d: '2026-03-29', n: 'Depósito', a: 600, ic: 'fa-arrow-down' },
-        { id: 'b14', d: '2026-03-29', n: 'Pasajes', a: -88, ic: 'fa-bus' }
-    ];
-
     let isSelectionMode = false;
     let selectedIds = new Set();
     let currentSelectedIcon = 'fa-bolt';
 
     document.addEventListener('DOMContentLoaded', () => {
-        let allEvents = JSON.parse(localStorage.getItem('ahorro_events'));
-        if (!allEvents) {
-            let extras = JSON.parse(localStorage.getItem('ahorro_extras') || '[]');
-            allEvents = [...baseEventsFallback, ...extras];
-            localStorage.setItem('ahorro_events', JSON.stringify(allEvents));
-            localStorage.removeItem('ahorro_extras'); 
-        }
-
         document.getElementById('evDate').valueAsDate = new Date();
         renderPlan();
     });
 
     function renderPlan() {
-        const vCame = parseMoney(localStorage.getItem("cameDebe"));
-        const vDoly = parseMoney(localStorage.getItem("dolyDebe"));
-        const vCom = parseMoney(localStorage.getItem("deudaComunitaria"));
-        const vCart = parseMoney(localStorage.getItem("cartera"));
-        const vTarj = parseMoney(localStorage.getItem("tarjeta"));
-        
-        let saldoReal = vCame + vDoly + vCom + vCart + vTarj;
+        let baseAmount = parseFloat(localStorage.getItem('ahorro_base_amount')) || 0;
+        let saldoReal = baseAmount;
+        let saldoProyectado = baseAmount; 
 
         let userGoal = parseFloat(localStorage.getItem('ahorro_meta')) || 3000;
         document.getElementById('metaDisplay').innerText = formatMoney(userGoal);
+
+        let allEvents = JSON.parse(localStorage.getItem('ahorro_events') || '[]');
+        let checkedStates = JSON.parse(localStorage.getItem('ahorro_checked') || '{}');
+        
+        allEvents.forEach(ev => {
+            saldoProyectado += parseFloat(ev.a);
+            if (checkedStates[ev.id]) {
+                saldoReal += parseFloat(ev.a);
+            }
+        });
 
         let goalEl = document.getElementById('goalAmount');
         goalEl.innerText = formatMoney(saldoReal);
@@ -363,10 +420,21 @@
             goalEl.style.textShadow = '0 0 15px rgba(37, 117, 252, 0.4)';
         }
 
-        let allEvents = JSON.parse(localStorage.getItem('ahorro_events') || '[]');
-        allEvents.sort((a,b) => a.d.localeCompare(b.d)); 
+        let projEl = document.getElementById('projAmount');
+        projEl.innerText = formatMoney(saldoProyectado);
         
-        let checkedStates = JSON.parse(localStorage.getItem('ahorro_checked') || '{}');
+        if (saldoProyectado >= userGoal) {
+            projEl.style.color = 'var(--neon-green)';
+            projEl.style.textShadow = '0 0 15px rgba(0, 242, 96, 0.4)';
+        } else if (saldoProyectado < 0) {
+            projEl.style.color = 'var(--neon-red)';
+            projEl.style.textShadow = '0 0 15px rgba(255, 51, 51, 0.4)';
+        } else {
+            projEl.style.color = '#fff';
+            projEl.style.textShadow = '0 0 10px rgba(255,255,255,0.3)';
+        }
+
+        allEvents.sort((a,b) => a.d.localeCompare(b.d)); 
         let tbody = document.getElementById('planBody');
         tbody.innerHTML = '';
 
@@ -397,16 +465,38 @@
             }
 
             let iconClass = ev.ic.includes(' ') ? ev.ic : `fas ${ev.ic}`;
+            let tentativeBadge = ev.p ? `<span class="badge-tentative">POSIBLE</span>` : '';
 
             tbody.innerHTML += `
                 <tr class="${rowClass}" ${clickAttr} style="${isSelectionMode ? 'cursor:pointer;' : ''}">
                     <td class="col-date">${dateStr}</td>
-                    <td class="col-desc"><i class="${iconClass}"></i> ${ev.n}</td>
+                    <td class="col-desc">
+                        <span><i class="${iconClass}"></i> ${ev.n}</span>
+                        ${tentativeBadge}
+                    </td>
                     <td class="col-amt ${valClass}">${sign}${ev.a.toFixed(2)}</td>
                     <td style="text-align: right;">${actionHtml}</td>
                 </tr>
             `;
         });
+    }
+
+    window.toggleBaseModal = function(show) {
+        const modal = document.getElementById('baseModal');
+        if(show) {
+            document.getElementById('baseInput').value = parseFloat(localStorage.getItem('ahorro_base_amount')) || 0;
+            modal.classList.add('active');
+            if(navigator.vibrate) navigator.vibrate(15);
+        } else {
+            modal.classList.remove('active');
+        }
+    }
+
+    window.saveBaseAmount = function() {
+        let base = parseFloat(document.getElementById('baseInput').value) || 0;
+        localStorage.setItem('ahorro_base_amount', base);
+        toggleBaseModal(false);
+        renderPlan(); 
     }
 
     window.toggleSelectionMode = function() {
@@ -465,7 +555,7 @@
         checkedStates[id] = !checkedStates[id];
         localStorage.setItem('ahorro_checked', JSON.stringify(checkedStates));
         if (navigator.vibrate) navigator.vibrate(15);
-        renderPlan();
+        renderPlan(); 
     }
 
     window.toggleEventModal = function(show) {
@@ -477,6 +567,7 @@
             modal.classList.remove('active');
             document.getElementById('evName').value = '';
             document.getElementById('evAmount').value = '';
+            document.getElementById('evTentative').checked = false;
             
             const firstOpt = document.querySelector('.icon-opt');
             selectIcon('fa-bolt', firstOpt);
@@ -494,6 +585,7 @@
         let name = document.getElementById('evName').value.trim();
         let amountStr = document.getElementById('evAmount').value;
         let date = document.getElementById('evDate').value;
+        let isTentative = document.getElementById('evTentative').checked;
 
         if(!name || !amountStr || !date) {
             alert("Por favor llena todos los campos.");
@@ -508,7 +600,8 @@
             d: date, 
             n: name, 
             a: amount, 
-            ic: currentSelectedIcon 
+            ic: currentSelectedIcon,
+            p: isTentative 
         });
         
         localStorage.setItem('ahorro_events', JSON.stringify(allEvents));
