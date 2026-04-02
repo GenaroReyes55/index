@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>META</title>
+
+<link rel="apple-touch-icon" href="iconog.png">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --bg-base: #1E293B;
+        --bg-card: #334155;
+        --text-main: #FFFFFF;
+        --text-muted: #CBD5E1;
+        --border-dark: #0F172A;
+        --c-rust: #B45309;
+        --c-sage: #4D7C0F;
+        --c-mustard: #CA8A04;
+        --c-cyan: #0E7490;
+        --c-red: #991B1B;
+        --c-purple: #6D28D9;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body {
+        background-color: var(--bg-base); 
+        color: var(--text-main);
+        min-height: 100vh;
+        transition: background 0.3s ease;
+        background-image: radial-gradient(var(--border-dark) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    body.edit-mode-active {
+        background-color: #2d1a1a;
+        background-image: radial-gradient(var(--c-red) 1px, transparent 1px);
+    }
+
+    .mobile-container {
+        width: 100%; max-width: 600px; margin: 0 auto;
+        padding: calc(env(safe-area-inset-top, 40px) + 20px) 20px calc(env(safe-area-inset-bottom, 34px) + 100px) 20px;
+        display: flex; flex-direction: column; gap: 20px;
+    }
+
+    .nav-header { display: flex; gap: 12px; align-items: center; }
+    .nav-btn {
+        width: 50px; height: 50px; border-radius: 14px;
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-main); text-decoration: none; font-size: 1.1rem;
+        box-shadow: 4px 4px 0px var(--border-dark); transition: 0.1s;
+        cursor: pointer;
+    }
+    .nav-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--border-dark); }
+    
+    .page-title-block {
+        flex: 1; background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 14px; height: 50px; display: flex; align-items: center; padding: 0 20px;
+        box-shadow: 4px 4px 0px var(--border-dark); font-size: 1.1rem; font-weight: 900; text-transform: uppercase;
+    }
+
+    .goal-card {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 20px; padding: 20px; box-shadow: 6px 6px 0px var(--border-dark);
+        display: flex; flex-direction: column; gap: 15px;
+    }
+    .goal-stats { display: flex; justify-content: space-between; align-items: flex-end; }
+    .real-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .real-amount { font-size: 2.4rem; font-weight: 900; line-height: 1; }
+    .meta-chip { 
+        background: var(--border-dark); padding: 6px 12px; border-radius: 10px; 
+        font-size: 0.75rem; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .progress-track { height: 14px; background: var(--border-dark); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: var(--c-sage); transition: width 0.8s ease; }
+
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .action-btn {
+        background: var(--c-cyan); border: 3px solid var(--border-dark);
+        padding: 12px; border-radius: 12px; color: #fff; font-size: 0.75rem;
+        font-weight: 900; text-align: center; cursor: pointer; text-transform: uppercase;
+        box-shadow: 3px 3px 0px var(--border-dark);
+    }
+
+    .event-row {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 16px; padding: 15px; display: grid; 
+        grid-template-columns: 45px 35px 1fr 90px 40px; 
+        align-items: center;
+        box-shadow: 4px 4px 0px var(--border-dark); margin-bottom: 12px;
+        transition: 0.2s;
+    }
+    .event-row.is-done { opacity: 0.5; transform: scale(0.98); border-style: dashed; }
+    
+    @keyframes shake { 0% { transform: rotate(0.5deg); } 50% { transform: rotate(-0.5deg); } 100% { transform: rotate(0.5deg); } }
+    .edit-mode-active .event-row { animation: shake 0.2s infinite; }
+    .edit-mode-active .event-row.selected { animation: none; border-color: #fff; transform: scale(1.02); }
+
+    .col-date { font-family: monospace; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); }
+    .col-icon { font-size: 1rem; text-align: left; opacity: 0.9; }
+    .col-desc { font-weight: 700; font-size: 0.85rem; line-height: 1.2; padding-right: 5px; }
+    .col-amt { text-align: right; font-weight: 900; font-family: monospace; font-size: 0.95rem; }
+    .val-in { color: var(--c-sage); }
+    .val-out { color: var(--c-rust); }
+
+    .check-trigger {
+        width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--border-dark);
+        background: var(--bg-base); display: flex; align-items: center; justify-content: center;
+        cursor: pointer; justify-self: flex-end;
+    }
+    .is-done .check-trigger { background: var(--c-sage); border-color: var(--c-sage); color: #fff; }
+
+    .posible-badge {
+        font-size: 0.55rem; font-weight: 900; background: var(--c-purple); 
+        color: #fff; padding: 2px 6px; border-radius: 6px; 
+        vertical-align: middle; margin-left: 5px; letter-spacing: 0.5px;
+    }
+
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.95); z-index: 100;
+        display: none; justify-content: center; align-items: center; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+        background: var(--bg-card); border: 4px solid var(--border-dark);
+        border-radius: 20px; width: 100%; max-width: 450px; padding: 24px;
+        box-shadow: 8px 8px 0px var(--border-dark); display: flex; flex-direction: column; gap: 15px;
+    }
+    .brutal-input {
+        background: var(--bg-base); border: 3px solid var(--border-dark);
+        border-radius: 12px; padding: 12px; color: #fff; font-weight: 600; width: 100%; outline: none;
+    }
+
+    .checkbox-group { 
+        display: flex; align-items: center; gap: 10px; cursor: pointer;
+        background: rgba(0,0,0,0.1); padding: 10px 15px; border-radius: 10px; border: 1px solid var(--border-dark);
+    }
+    .checkbox-group span { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+
+    .icon-grid { 
+        display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0;
+        max-height: 180px; overflow-y: auto; border: 1px solid var(--border-dark);
+        border-radius: 10px; background: rgba(0,0,0,0.1); padding: 10px;
+    }
+    .icon-opt {
+        width: 34px; height: 34px; border-radius: 8px; background: var(--bg-base); border: 2px solid var(--border-dark);
+        display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem;
+    }
+    .icon-opt.active { background: var(--c-mustard); color: var(--border-dark); border-color: #fff; }
+
+    .projection-bar {
+        position: fixed; bottom: 0; left: 0; width: 100%;
+        background: var(--border-dark); padding: 15px 25px calc(15px + env(safe-area-inset-bottom));
+        display: flex; justify-content: space-between; align-items: center;
+        border-top: 3px solid var(--border-dark); z-index: 10;
+    }
+
+    .delete-bar {
+        display: none; justify-content: space-between; align-items: center;
+        background: var(--c-red); border: 3px solid var(--border-dark);
+        padding: 15px; border-radius: 16px; margin-bottom: 15px;
+    }
+    .delete-bar.show { display: flex; }
+</style>
+</head>
+<body id="bodyTag">
+
+<div class="mobile-container">
+    <header class="nav-header">
+        <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title-block">Meta</div>
+        <a href="ahorro.html" class="nav-btn"><i class="fas fa-coins"></i></a>
+        <div class="nav-btn" onclick="toggleEditMode()" id="editBtn"><i class="fas fa-trash-can"></i></div>
+    </header>
+
+    <div class="delete-bar" id="deleteBar">
+        <span style="font-weight: 900; font-size: 0.8rem;" id="selText">0 SELECCIONADOS</span>
+        <button onclick="deleteSelected()" style="background:#fff; color:var(--c-red); border:2px solid var(--border-dark); padding:8px 15px; border-radius:8px; font-weight:900; font-size:0.7rem; text-transform:uppercase;">Borrar</button>
+    </div>
+
+    <div class="goal-card" id="goalContainer">
+        <div class="goal-stats">
+            <div>
+                <span class="real-label">Saldo Real Actual</span>
+                <div class="real-amount" id="realBalance">$0.00</div>
+            </div>
+            <div class="meta-chip" onclick="openMetaModal()">
+                META: <span id="metaVal">$0.00</span>
+            </div>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
+        <div class="btn-group">
+            <div class="action-btn" onclick="openBalanceModal()" style="background: var(--c-mustard); color: #000;">Ajustar Saldo</div>
+            <div class="action-btn" onclick="openEventModal()">+ Nuevo Plan</div>
+        </div>
+    </div>
+
+    <div id="planList"></div>
+</div>
+
+<div class="projection-bar">
+    <span class="real-label" style="color: var(--text-muted);">Proyección Final</span>
+    <div style="font-size: 1.4rem; font-weight: 900; color: var(--c-mustard); font-family: monospace;" id="projAmount">$0.00</div>
+</div>
+
+<div class="modal-overlay" id="balanceModal">
+    <div class="modal-content">
+        <h3 style="font-weight: 900; text-transform: uppercase;">Saldo Real</h3>
+        <input type="number" id="inputBalance" class="brutal-input" placeholder="0.00" step="0.01">
+        <div class="action-btn" onclick="saveBalance()">Actualizar</div>
+        <div class="action-btn" style="background: transparent; box-shadow: none;" onclick="toggleModal('balanceModal', false)">Cancelar</div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="metaModal">
+    <div class="modal-content">
+        <h3 style="font-weight: 900; text-transform: uppercase;">Ajustar Meta</h3>
+        <input type="number" id="inputMeta" class="brutal-input" placeholder="Ej: 3000.00" step="0.01">
+        <div class="action-btn" onclick="saveMeta()">Guardar</div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="eventModal">
+    <div class="modal-content">
+        <label style="font-size: 0.6rem; font-weight: 900; color: var(--text-muted);">CATEGORÍA</label>
+        <div class="icon-grid" id="iconPicker"></div>
+        <input type="text" id="evName" class="brutal-input" placeholder="Descripción">
+        <input type="number" id="evAmount" class="brutal-input" placeholder="Monto (+/-)" step="0.01">
+        <input type="date" id="evDate" class="brutal-input">
+        
+        <label class="checkbox-group">
+            <input type="checkbox" id="evPosible" style="width: 20px; height: 20px; accent-color: var(--c-purple);">
+            <span>Marcar como "Posible" (No seguro)</span>
+        </label>
+
+        <div class="action-btn" style="background: var(--c-sage);" onclick="saveEvent()">Añadir al Plan</div>
+        <div class="action-btn" style="background: transparent; box-shadow: none;" onclick="toggleModal('eventModal', false)">Cerrar</div>
+    </div>
+</div>
+
+<script>
+    let currentIcon = 'fa-briefcase';
+    let isEditMode = false;
+    let selectedItems = new Set();
+    
+    const KEY_EVENTS = 'meta_v3_events';
+    const KEY_META = 'meta_v3_goal';
+    const KEY_BALANCE = 'meta_v3_balance';
+    const KEY_CHECKED = 'meta_v3_checked';
+
+    const icons = [
+        'fa-briefcase', 'fa-money-check-dollar', 'fa-building-user', 'fa-building-columns',
+        'fa-user-plus', 'fa-user-minus', 'fa-people-roof', 'fa-user-tie',
+        'fa-wallet', 'fa-coins', 'fa-money-bill-1', 'fa-sack-dollar', 'fa-piggy-bank', 'fa-credit-card', 'fa-id-card-clip', 'fa-receipt',
+        'fa-cart-shopping', 'fa-basket-shopping', 'fa-bag-shopping', 'fa-store', 'fa-box-open',
+        'fa-house', 'fa-bolt', 'fa-droplet', 'fa-fire', 'fa-wifi', 'fa-tools', 'fa-couch',
+        'fa-utensils', 'fa-burger', 'fa-pizza-slice', 'fa-mug-hot', 'fa-apple-whole', 'fa-champagne-glasses',
+        'fa-car', 'fa-bus', 'fa-train', 'fa-plane', 'fa-motorcycle', 'fa-gas-pump', 'fa-globe', 'fa-suitcase',
+        'fa-mobile-retro', 'fa-laptop', 'fa-headphones', 'fa-gamepad', 'fa-film', 'fa-tv', 'fa-music', 'fa-ticket', 'fa-camera',
+        'fa-heart', 'fa-face-kiss-heart', 'fa-kit-medical', 'fa-pills', 'fa-tooth', 'fa-dumbbell', 'fa-shirt', 'fa-paw',
+        'fa-graduation-cap', 'fa-book', 'fa-pen',
+        'fa-brands fa-spotify', 'fa-brands fa-netflix', 'fa-brands fa-amazon', 'fa-brands fa-steam', 'fa-brands fa-playstation', 'fa-brands fa-xbox', 'fa-brands fa-youtube',
+        'fa-gift', 'fa-seedling', 'fa-calendar-day', 'fa-calendar-week', 'fa-repeat', 'fa-star', 'fa-circle-exclamation'
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const picker = document.getElementById('iconPicker');
+        icons.forEach(icon => {
+            const div = document.createElement('div');
+            div.className = `icon-opt ${icon === currentIcon ? 'active' : ''}`;
+            const prefix = icon.includes('fa-brands') ? '' : 'fas';
+            div.innerHTML = `<i class="${prefix} ${icon}"></i>`;
+            div.onclick = () => {
+                document.querySelectorAll('.icon-opt').forEach(el => el.classList.remove('active'));
+                div.classList.add('active'); currentIcon = icon;
+            };
+            picker.appendChild(div);
+        });
+        render();
+    });
+
+    function render() {
+        const events = JSON.parse(localStorage.getItem(KEY_EVENTS) || '[]');
+        const meta = parseFloat(localStorage.getItem(KEY_META)) || 3000;
+        const baseBalance = parseFloat(localStorage.getItem(KEY_BALANCE)) || 0;
+        const checkedStates = JSON.parse(localStorage.getItem(KEY_CHECKED) || '{}');
+        
+        let sumChecked = 0;
+        let sumTotalPlanes = 0;
+        
+        const container = document.getElementById('planList');
+        container.innerHTML = '';
+
+        events.sort((a,b) => a.d.localeCompare(b.d)).forEach(ev => {
+            const amt = parseFloat(ev.a);
+            const isDone = checkedStates[ev.id] || false;
+            
+            if(isDone) sumChecked += amt;
+            sumTotalPlanes += amt;
+
+            const isSel = selectedItems.has(ev.id);
+            const iconPrefix = (ev.ic && ev.ic.includes('fa-brands')) ? '' : 'fas';
+            
+            const posibleBadge = ev.p ? '<span class="posible-badge">POSIBLE</span>' : '';
+            
+            // Aquí forzamos a que el monto de la lista individual se muestre en formato contabilidad
+            const formattedAmt = amt.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            container.innerHTML += `
+                <div class="event-row ${isDone ? 'is-done' : ''} ${isSel ? 'selected' : ''}" onclick="handleRowClick('${ev.id}')">
+                    <div class="col-date">${ev.d.split('-')[2]}/${ev.d.split('-')[1]}</div>
+                    <div class="col-icon"><i class="${iconPrefix} ${ev.ic || 'fa-calendar-check'}"></i></div>
+                    <div class="col-desc">${ev.n} ${posibleBadge}</div>
+                    <div class="col-amt ${amt >= 0 ? 'val-in' : 'val-out'}">${amt >= 0 ? '+' : ''}${formattedAmt}</div>
+                    <div class="check-trigger" onclick="toggleEventDone(event, '${ev.id}')">
+                        ${isDone ? '<i class="fas fa-check"></i>' : ''}
+                    </div>
+                </div>`;
+        });
+
+        const saldoRealUI = baseBalance + sumChecked;
+        // Aplicando el formato en-US (miles con coma, decimales con punto)
+        document.getElementById('realBalance').innerText = "$" + saldoRealUI.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        const proyeccionUI = baseBalance + sumTotalPlanes;
+        document.getElementById('projAmount').innerText = "$" + proyeccionUI.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        document.getElementById('metaVal').innerText = "$" + meta.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        const pct = Math.min(100, Math.round((saldoRealUI / meta) * 100));
+        document.getElementById('progressBar').style.width = pct + "%";
+    }
+
+    function toggleEventDone(e, id) {
+        e.stopPropagation();
+        if(isEditMode) return;
+        let checkedStates = JSON.parse(localStorage.getItem(KEY_CHECKED) || '{}');
+        
+        if (checkedStates[id]) { 
+            delete checkedStates[id]; 
+        } else { 
+            checkedStates[id] = true; 
+            if(navigator.vibrate) navigator.vibrate(15); 
+        }
+        
+        localStorage.setItem(KEY_CHECKED, JSON.stringify(checkedStates));
+        render();
+    }
+
+    function handleRowClick(id) {
+        if(!isEditMode) return;
+        if(selectedItems.has(id)) selectedItems.delete(id); else selectedItems.add(id);
+        document.getElementById('selText').innerText = `${selectedItems.size} SELECCIONADOS`;
+        render();
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        selectedItems.clear();
+        document.getElementById('bodyTag').classList.toggle('edit-mode-active', isEditMode);
+        document.getElementById('deleteBar').classList.toggle('show', isEditMode);
+        render();
+    }
+
+    function deleteSelected() {
+        let events = JSON.parse(localStorage.getItem(KEY_EVENTS) || '[]');
+        events = events.filter(e => !selectedItems.has(e.id));
+        localStorage.setItem(KEY_EVENTS, JSON.stringify(events));
+        toggleEditMode();
+    }
+
+    function toggleModal(id, show) { document.getElementById(id).classList.toggle('active', show); }
+    function openBalanceModal() { toggleModal('balanceModal', true); }
+    function openMetaModal() { toggleModal('metaModal', true); }
+    
+    function openEventModal() {
+        document.getElementById('evName').value = '';
+        document.getElementById('evAmount').value = '';
+        
+        const today = new Date();
+        today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+        document.getElementById('evDate').value = today.toISOString().split('T')[0];
+        
+        document.getElementById('evPosible').checked = false;
+        toggleModal('eventModal', true);
+    }
+    
+    function saveBalance() { 
+        localStorage.setItem(KEY_BALANCE, document.getElementById('inputBalance').value); 
+        toggleModal('balanceModal', false); 
+        render(); 
+    }
+    
+    function saveMeta() { 
+        localStorage.setItem(KEY_META, document.getElementById('inputMeta').value); 
+        toggleModal('metaModal', false); 
+        render(); 
+    }
+
+    function saveEvent() {
+        const n = document.getElementById('evName').value;
+        const a = document.getElementById('evAmount').value;
+        const d = document.getElementById('evDate').value;
+        const p = document.getElementById('evPosible').checked;
+        
+        if(!n || !a || !d) return;
+        
+        const events = JSON.parse(localStorage.getItem(KEY_EVENTS) || '[]');
+        events.push({ id: 'e'+Date.now(), n, a, d, ic: currentIcon, p }); 
+        localStorage.setItem(KEY_EVENTS, JSON.stringify(events));
+        toggleModal('eventModal', false); 
+        render();
+    }
+</script>
+</body>
+</html>

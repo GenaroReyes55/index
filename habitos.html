@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>HÁBITOS</title>
+
+<link rel="apple-touch-icon" href="iconog.png">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --bg-base: #1E293B;
+        --bg-card: #334155;
+        --text-main: #FFFFFF;
+        --text-muted: #CBD5E1;
+        --border-dark: #0F172A;
+        --c-purple: #6D28D9;
+        --c-mustard: #CA8A04;
+        --c-sage: #4D7C0F;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body {
+        background-color: var(--bg-base); 
+        color: var(--text-main);
+        min-height: 100vh;
+        background-image: radial-gradient(var(--border-dark) 1px, transparent 1px);
+        background-size: 20px 20px;
+        padding-bottom: 40px;
+    }
+
+    .mobile-container {
+        width: 100%; max-width: 600px; margin: 0 auto;
+        padding: calc(env(safe-area-inset-top, 40px) + 20px) 20px 40px 20px;
+        display: flex; flex-direction: column; gap: 25px;
+    }
+
+    /* HEADER */
+    .nav-header { display: flex; gap: 12px; align-items: center; }
+    .nav-btn {
+        width: 50px; height: 50px; border-radius: 14px;
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-main); text-decoration: none; font-size: 1.1rem;
+        box-shadow: 4px 4px 0px var(--border-dark); cursor: pointer;
+    }
+    .nav-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--border-dark); }
+    
+    .page-title-block {
+        flex: 1; background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 14px; height: 50px; display: flex; align-items: center; padding: 0 20px;
+        box-shadow: 4px 4px 0px var(--border-dark); font-size: 1rem; font-weight: 900; text-transform: uppercase;
+    }
+
+    /* CÍRCULO PROGRESO */
+    .circle-section {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 24px; padding: 25px; box-shadow: 6px 6px 0px var(--border-dark);
+        display: flex; flex-direction: column; align-items: center; gap: 15px;
+    }
+    .progress-ring {
+        width: 130px; height: 130px; border-radius: 50%;
+        background: conic-gradient(var(--c-purple) 0%, var(--border-dark) 0%);
+        display: flex; align-items: center; justify-content: center;
+        position: relative; border: 4px solid var(--border-dark);
+    }
+    .progress-ring::after {
+        content: attr(data-pct);
+        width: 95px; height: 95px; background: var(--bg-card);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-weight: 900; font-size: 1.6rem; border: 3px solid var(--border-dark);
+    }
+    .selected-date-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--c-mustard); letter-spacing: 1px;}
+
+    /* LISTA DE HÁBITOS */
+    .habits-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .habit-item {
+        background: var(--bg-base); border: 3px solid var(--border-dark);
+        border-radius: 14px; padding: 12px; display: flex; align-items: center; gap: 10px;
+        transition: 0.1s; cursor: pointer;
+    }
+    .habit-item.done { background: var(--c-purple); transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--border-dark); }
+    .check-sq {
+        width: 20px; height: 20px; border: 2px solid var(--border-dark);
+        border-radius: 5px; background: rgba(255,255,255,0.05);
+        display: flex; align-items: center; justify-content: center; font-size: 0.7rem;
+    }
+    .done .check-sq { background: var(--border-dark); color: #fff; }
+    .habit-name { font-weight: 800; font-size: 0.85rem; text-transform: uppercase; }
+
+    /* CALENDARIO ANUAL POR MESES */
+    .cal-section {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 20px; padding: 15px; box-shadow: 4px 4px 0px var(--border-dark);
+    }
+    .month-row {
+        display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+    }
+    .month-label {
+        width: 35px; font-size: 0.65rem; font-weight: 900; 
+        text-transform: uppercase; color: var(--text-muted); text-align: left;
+    }
+    .days-row {
+        display: flex; flex-wrap: wrap; gap: 4px; flex: 1;
+    }
+    .day-sq {
+        width: 12px; height: 12px; border-radius: 2px;
+        background: var(--border-dark); border: 1px solid rgba(255,255,255,0.05);
+        cursor: pointer; position: relative; overflow: hidden;
+    }
+    .fill-inner {
+        position: absolute; bottom: 0; left: 0; width: 100%;
+        background: var(--c-purple); transition: height 0.3s ease;
+    }
+    .day-sq.perfect .fill-inner { background: var(--c-mustard); }
+    .day-sq.selected { outline: 2px solid #fff; outline-offset: 1px; z-index: 5; }
+
+    /* CONTADORES */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stat-card {
+        background: var(--bg-card); border: 2px solid var(--border-dark);
+        border-radius: 12px; padding: 10px; text-align: center;
+    }
+    .stat-val { font-size: 1.2rem; font-weight: 900; color: var(--c-sage); }
+    .stat-lbl { font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+
+</style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <header class="nav-header">
+        <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title-block">Hábitos</div>
+        <div class="nav-btn" onclick="goToToday()"><i class="fas fa-calendar-day"></i></div>
+    </header>
+
+    <div class="circle-section">
+        <div class="selected-date-label" id="dateLabel">Hoy</div>
+        <div class="progress-ring" id="mainCircle" data-pct="0%"></div>
+        <div id="summaryText" style="font-weight: 900; text-transform: uppercase; font-size: 0.8rem;">0 de 6 Hechos</div>
+    </div>
+
+    <div class="habits-list" id="habitsToday"></div>
+
+    <div class="cal-section">
+        <div style="margin-bottom: 15px; border-bottom: 2px solid var(--border-dark); padding-bottom: 5px;">
+            <span style="font-size: 0.7rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted);">Consistencia 2026</span>
+        </div>
+        <div id="monthsContainer"></div>
+    </div>
+
+    <div style="font-size: 0.7rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); margin-bottom: -15px;">Frecuencia Total</div>
+    <div class="stats-grid" id="habitStats"></div>
+
+</div>
+
+<script>
+    const HABITS = ["Agua", "Dibujar", "Dientes", "Gym", "Comer", "Uñas"];
+    const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    let currentSelectedDate = new Date().toISOString().split('T')[0];
+
+    document.addEventListener('DOMContentLoaded', render);
+
+    function goToToday() {
+        currentSelectedDate = new Date().toISOString().split('T')[0];
+        render();
+    }
+
+    function render() {
+        const doneOnDate = JSON.parse(localStorage.getItem(`habits_${currentSelectedDate}`) || '[]');
+        
+        const options = { weekday: 'long', day: 'numeric', month: 'short' };
+        const dateObj = new Date(currentSelectedDate + 'T12:00:00');
+        document.getElementById('dateLabel').innerText = dateObj.toLocaleDateString('es-ES', options);
+
+        const listContainer = document.getElementById('habitsToday');
+        listContainer.innerHTML = '';
+        HABITS.forEach(h => {
+            const isDone = doneOnDate.includes(h);
+            listContainer.innerHTML += `
+                <div class="habit-item ${isDone ? 'done' : ''}" onclick="toggleHabit('${h}')">
+                    <div class="check-sq">${isDone ? '<i class="fas fa-check"></i>' : ''}</div>
+                    <span class="habit-name">${h}</span>
+                </div>`;
+        });
+
+        const pct = Math.round((doneOnDate.length / HABITS.length) * 100);
+        const circle = document.getElementById('mainCircle');
+        circle.style.background = `conic-gradient(var(--c-purple) ${pct}%, var(--border-dark) ${pct}%)`;
+        circle.setAttribute('data-pct', pct + '%');
+        document.getElementById('summaryText').innerText = `${doneOnDate.length} de ${HABITS.length} Hechos`;
+
+        renderFullYear();
+        renderStats();
+    }
+
+    function toggleHabit(name) {
+        let done = JSON.parse(localStorage.getItem(`habits_${currentSelectedDate}`) || '[]');
+        if (done.includes(name)) done = done.filter(i => i !== name);
+        else {
+            done.push(name);
+            if(navigator.vibrate) navigator.vibrate(10);
+        }
+        localStorage.setItem(`habits_${currentSelectedDate}`, JSON.stringify(done));
+        render();
+    }
+
+    function renderFullYear() {
+        const container = document.getElementById('monthsContainer');
+        container.innerHTML = '';
+        const year = 2026;
+
+        MONTHS.forEach((monthName, mIndex) => {
+            const row = document.createElement('div');
+            row.className = 'month-row';
+            
+            const label = document.createElement('div');
+            label.className = 'month-label';
+            label.innerText = monthName;
+            
+            const daysContainer = document.createElement('div');
+            daysContainer.className = 'days-row';
+
+            // Días del mes
+            const daysInMonth = new Date(year, mIndex + 1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${year}-${String(mIndex + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const done = JSON.parse(localStorage.getItem(`habits_${dateStr}`) || '[]');
+                
+                const sq = document.createElement('div');
+                sq.className = `day-sq ${dateStr === currentSelectedDate ? 'selected' : ''}`;
+                if(done.length === HABITS.length) sq.classList.add('perfect');
+                
+                const fillHeight = (done.length / HABITS.length) * 100;
+                sq.innerHTML = `<div class="fill-inner" style="height: ${fillHeight}%"></div>`;
+                
+                sq.onclick = () => {
+                    currentSelectedDate = dateStr;
+                    render();
+                };
+                daysContainer.appendChild(sq);
+            }
+
+            row.appendChild(label);
+            row.appendChild(daysContainer);
+            container.appendChild(row);
+        });
+    }
+
+    function renderStats() {
+        const container = document.getElementById('habitStats');
+        container.innerHTML = '';
+        let counts = {};
+        HABITS.forEach(h => counts[h] = 0);
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('habits_')) {
+                const dayDone = JSON.parse(localStorage.getItem(key) || '[]');
+                dayDone.forEach(h => { if(counts[h] !== undefined) counts[h]++; });
+            }
+        }
+
+        HABITS.forEach(h => {
+            container.innerHTML += `
+                <div class="stat-card">
+                    <div class="stat-val">${counts[h]}</div>
+                    <div class="stat-lbl">${h}</div>
+                </div>`;
+        });
+    }
+</script>
+</body>
+</html>

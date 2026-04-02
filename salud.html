@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>SALUD</title>
+
+<link rel="apple-touch-icon" href="iconog.png">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --bg-base: #1E293B;
+        --bg-card: #334155;
+        --text-main: #FFFFFF;
+        --text-muted: #CBD5E1;
+        --border-dark: #0F172A;
+        
+        /* Colores de Lugares */
+        --c-tux: #991B1B;    /* Rojo */
+        --c-nm: #CA8A04;     /* Amarillo */
+        --c-cint: #0E7490;   /* Azul Celeste */
+        
+        --c-purple: #6D28D9;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body {
+        background-color: var(--bg-base); 
+        color: var(--text-main);
+        min-height: 100vh;
+        background-image: radial-gradient(var(--border-dark) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    .mobile-container {
+        width: 100%; max-width: 800px; margin: 0 auto;
+        padding: calc(env(safe-area-inset-top, 40px) + 20px) 20px 40px 20px;
+        display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* HEADER */
+    .nav-header { display: flex; gap: 12px; align-items: center; margin-bottom: 5px;}
+    .nav-btn {
+        width: 50px; height: 50px; border-radius: 14px;
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-main); text-decoration: none; font-size: 1.1rem;
+        box-shadow: 4px 4px 0px var(--border-dark); cursor: pointer;
+    }
+    .nav-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--border-dark); }
+    
+    .page-title-block {
+        flex: 1; background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 14px; height: 50px; display: flex; align-items: center; padding: 0 20px;
+        box-shadow: 4px 4px 0px var(--border-dark); font-size: 1rem; font-weight: 900; text-transform: uppercase;
+    }
+
+    /* SECCIÓN DÍA ACTUAL */
+    .status-card {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 20px; padding: 20px; box-shadow: 6px 6px 0px var(--border-dark);
+        display: flex; flex-direction: column; gap: 15px;
+    }
+    .date-display { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-bottom: 2px solid var(--border-dark); padding-bottom: 10px; }
+    
+    .location-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .loc-btn {
+        padding: 15px 5px; border-radius: 12px; border: 3px solid var(--border-dark);
+        font-weight: 900; font-size: 0.8rem; text-align: center; cursor: pointer; transition: 0.1s;
+    }
+    .btn-tux { background: var(--c-tux); color: #fff; }
+    .btn-nm { background: var(--c-nm); color: #000; }
+    .btn-cint { background: var(--c-cint); color: #fff; }
+    .loc-btn:active { transform: translate(3px, 3px); box-shadow: none; }
+    .loc-btn.active { outline: 3px solid #fff; outline-offset: -6px; transform: scale(0.95); }
+
+    /* CONTADORES */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .stat-box {
+        background: var(--bg-base); border: 2px solid var(--border-dark);
+        border-radius: 10px; padding: 8px 5px; text-align: center;
+    }
+    .stat-num { font-size: 1.1rem; font-weight: 900; display: block; }
+    .stat-lbl { font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+    .total-box { border-color: var(--c-purple); }
+    .total-box .stat-num { color: var(--c-purple); }
+
+    /* CALENDARIO MATRIZ ANUAL */
+    .cal-container {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 20px; padding: 15px; box-shadow: 4px 4px 0px var(--border-dark);
+        overflow-x: auto; /* Para scroll horizontal en móvil */
+    }
+    .cal-wrapper { min-width: 650px; } /* Asegura que no se amontone */
+    
+    .cal-header-days { display: grid; grid-template-columns: 50px repeat(31, 1fr); gap: 2px; margin-bottom: 5px; }
+    .day-label { font-size: 0.5rem; font-weight: 900; text-align: center; color: var(--text-muted); }
+
+    .month-row { display: grid; grid-template-columns: 50px repeat(31, 1fr); gap: 2px; margin-bottom: 2px; }
+    .month-name { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; }
+    
+    .cell {
+        aspect-ratio: 1; border-radius: 2px; background: var(--border-dark);
+        border: 1px solid rgba(255,255,255,0.05); cursor: pointer;
+    }
+    .cell.selected { outline: 2px solid #fff; z-index: 10; }
+    
+    /* Colores en el calendario */
+    .cell-TUX { background: var(--c-tux) !important; }
+    .cell-NM { background: var(--c-nm) !important; }
+    .cell-CINT { background: var(--c-cint) !important; }
+    .cell-none { background: var(--border-dark); }
+
+</style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <header class="nav-header">
+        <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title-block">Log de Lugares</div>
+        <div class="nav-btn" onclick="resetDay()"><i class="fas fa-undo"></i></div>
+    </header>
+
+    <div class="status-card">
+        <div class="date-display" id="currentDateDisplay">Hoy</div>
+        
+        <div class="location-selector">
+            <div class="loc-btn btn-tux" onclick="markLocation('TUX')">TUX</div>
+            <div class="loc-btn btn-nm" onclick="markLocation('NM')">NM</div>
+            <div class="loc-btn btn-cint" onclick="markLocation('CINT')">CINT</div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box"><span class="stat-num" id="count-TUX" style="color:var(--c-tux)">0</span><span class="stat-lbl">TUX</span></div>
+            <div class="stat-box"><span class="stat-num" id="count-NM" style="color:var(--c-nm)">0</span><span class="stat-lbl">NM</span></div>
+            <div class="stat-box"><span class="stat-num" id="count-CINT" style="color:var(--c-cint)">0</span><span class="stat-lbl">CINT</span></div>
+            <div class="stat-box total-box"><span class="stat-num" id="count-TOTAL">0</span><span class="stat-lbl">Total</span></div>
+        </div>
+    </div>
+
+    <div class="cal-container">
+        <div class="cal-wrapper">
+            <div class="cal-header-days" id="daysHeader">
+                <div></div> </div>
+            <div id="matrixBody"></div>
+        </div>
+    </div>
+
+    <div style="text-align: center; font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">
+        Selecciona un cuadro en el calendario para cambiar la fecha
+    </div>
+</div>
+
+<script>
+    const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    let selectedDate = new Date().toISOString().split('T')[0];
+    const storageKey = 'ot_lugares_log';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initDaysHeader();
+        render();
+    });
+
+    function initDaysHeader() {
+        const header = document.getElementById('daysHeader');
+        for(let i=1; i<=31; i++) {
+            header.innerHTML += `<div class="day-label">${i}</div>`;
+        }
+    }
+
+    function render() {
+        const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        
+        // 1. Mostrar fecha seleccionada
+        const options = { weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('currentDateDisplay').innerText = new Date(selectedDate + 'T12:00:00').toLocaleDateString('es-ES', options);
+
+        // 2. Renderizar Matriz
+        const matrixBody = document.getElementById('matrixBody');
+        matrixBody.innerHTML = '';
+        const year = 2026;
+
+        MONTHS.forEach((month, mIdx) => {
+            const row = document.createElement('div');
+            row.className = 'month-row';
+            row.innerHTML = `<div class="month-name">${month}</div>`;
+
+            const daysInMonth = new Date(year, mIdx + 1, 0).getDate();
+            for(let d=1; d<=31; d++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                
+                if(d <= daysInMonth) {
+                    const dStr = `${year}-${String(mIdx + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const loc = data[dStr];
+                    if(loc) cell.classList.add(`cell-${loc}`);
+                    if(dStr === selectedDate) cell.classList.add('selected');
+                    
+                    cell.onclick = () => {
+                        selectedDate = dStr;
+                        render();
+                    };
+                } else {
+                    cell.style.opacity = '0'; // Días que no existen (ej. 31 de feb)
+                    cell.style.pointerEvents = 'none';
+                }
+                row.appendChild(cell);
+            }
+            matrixBody.appendChild(row);
+        });
+
+        // 3. Calcular Estadísticas
+        let counts = { TUX: 0, NM: 0, CINT: 0, TOTAL: 0 };
+        Object.values(data).forEach(loc => {
+            if(counts[loc] !== undefined) {
+                counts[loc]++;
+                counts.TOTAL++;
+            }
+        });
+
+        document.getElementById('count-TUX').innerText = counts.TUX;
+        document.getElementById('count-NM').innerText = counts.NM;
+        document.getElementById('count-CINT').innerText = counts.CINT;
+        document.getElementById('count-TOTAL').innerText = counts.TOTAL;
+
+        // Resaltar botón activo para el día seleccionado
+        document.querySelectorAll('.loc-btn').forEach(btn => btn.classList.remove('active'));
+        const currentLoc = data[selectedDate];
+        if(currentLoc) {
+            document.querySelector(`.btn-${currentLoc.toLowerCase()}`).classList.add('active');
+        }
+    }
+
+    function markLocation(loc) {
+        const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        // Si ya está marcado ese lugar, lo desmarcamos (toggle)
+        if(data[selectedDate] === loc) delete data[selectedDate];
+        else data[selectedDate] = loc;
+
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        if(navigator.vibrate) navigator.vibrate(10);
+        render();
+    }
+
+    function resetDay() {
+        const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        delete data[selectedDate];
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        render();
+    }
+</script>
+</body>
+</html>

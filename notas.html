@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>NOTAS</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="iconog.png">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --bg-base: #1E293B;
+        --bg-card: #334155;
+        --text-main: #FFFFFF;
+        --text-muted: #CBD5E1;
+        --border-dark: #0F172A;
+        
+        /* CATEGORÍAS */
+        --c-ama: #A35D6A;
+        --c-dato: #0E7490;
+        --c-odia: #B45309;
+        
+        --c-red: #991B1B;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body {
+        background-color: var(--bg-base); 
+        color: var(--text-main);
+        min-height: 100vh;
+        transition: background 0.3s ease;
+        background-image: radial-gradient(var(--border-dark) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    /* ESTILO BORRADO ACTIVO */
+    body.edit-mode-active {
+        background-color: #2d1a1a;
+        background-image: radial-gradient(var(--c-red) 1px, transparent 1px);
+    }
+
+    .mobile-container {
+        width: 100%; max-width: 600px; min-height: 100vh;
+        margin: 0 auto;
+        padding: calc(env(safe-area-inset-top, 40px) + 20px) 24px calc(env(safe-area-inset-bottom, 34px) + 30px) 24px;
+        display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* HEADER */
+    .nav-header { display: flex; gap: 12px; align-items: center; }
+    .nav-btn {
+        width: 50px; height: 50px; border-radius: 14px;
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-main); text-decoration: none; font-size: 1.1rem;
+        box-shadow: 4px 4px 0px var(--border-dark); transition: 0.1s;
+        cursor: pointer;
+    }
+    .nav-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--border-dark); }
+    
+    .page-title-block {
+        flex: 1; background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 14px; height: 50px; display: flex; align-items: center; padding: 0 20px;
+        box-shadow: 4px 4px 0px var(--border-dark); font-size: 1.1rem; font-weight: 900; text-transform: uppercase;
+    }
+
+    /* --- NUEVO CONTADOR CORAZÓN SVG --- */
+    .romantic-widget {
+        display: flex; align-items: center;
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 24px; padding: 12px;
+        box-shadow: 6px 6px 0px var(--border-dark);
+        margin-bottom: 5px;
+    }
+
+    .heart-svg-box {
+        width: 80px; height: 80px;
+        position: relative;
+        display: flex; align-items: center; justify-content: center;
+        animation: heartbeat 1.5s infinite ease-in-out;
+        filter: drop-shadow(3px 3px 0px var(--border-dark));
+    }
+
+    @keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+    }
+
+    .days-overlay {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.8rem; font-weight: 900;
+        color: #fff; text-shadow: 2px 2px 0px var(--border-dark);
+        z-index: 2;
+    }
+
+    .capsule-info {
+        flex: 1; padding-left: 15px;
+        display: flex; flex-direction: column; gap: 2px;
+    }
+    .capsule-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
+    .capsule-val { font-size: 1rem; font-weight: 800; color: #fff; line-height: 1.2; }
+
+    /* INPUT */
+    .input-card {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 20px; padding: 20px; box-shadow: 5px 5px 0px var(--border-dark);
+        display: flex; flex-direction: column; gap: 15px;
+    }
+    .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .type-opt {
+        background: var(--bg-base); border: 2px solid var(--border-dark);
+        padding: 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 900;
+        text-align: center; text-transform: uppercase; cursor: pointer; color: var(--text-muted);
+    }
+    .type-opt[data-type="dato"].active { background: var(--c-dato); color: #fff; }
+    .type-opt[data-type="ama"].active { background: var(--c-ama); color: #fff; }
+    .type-opt[data-type="odia"].active { background: var(--c-odia); color: #fff; }
+
+    .brutal-textarea {
+        width: 100%; min-height: 80px; background: var(--bg-base);
+        border: 3px solid var(--border-dark); border-radius: 12px;
+        padding: 15px; color: #fff; font-size: 1rem; outline: none; resize: none; font-weight: 500;
+    }
+    .save-btn {
+        background: #fff; border: 3px solid var(--border-dark);
+        padding: 14px; border-radius: 14px; color: #000; font-size: 0.9rem;
+        font-weight: 900; text-align: center; cursor: pointer; text-transform: uppercase;
+        box-shadow: 4px 4px 0px var(--border-dark);
+    }
+
+    /* BUSCADOR */
+    .search-input {
+        width: 100%; background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 14px; padding: 12px 20px; color: #fff;
+        font-weight: 600; outline: none; box-shadow: 3px 3px 0px var(--border-dark);
+    }
+
+    /* LISTA DE NOTAS Y ANIMACIÓN BORRADO */
+    .notes-grid { display: flex; flex-direction: column-reverse; gap: 15px; }
+    
+    .note-card {
+        border: 3px solid var(--border-dark);
+        border-radius: 16px; padding: 18px; position: relative;
+        box-shadow: 4px 4px 0px var(--border-dark);
+        transition: 0.2s;
+    }
+
+    @keyframes shake { 0% { transform: rotate(0.6deg); } 50% { transform: rotate(-0.6deg); } 100% { transform: rotate(0.6deg); } }
+    
+    .edit-mode-active .note-card { animation: shake 0.25s infinite; opacity: 0.8; }
+    .edit-mode-active .note-card.selected { animation: none; opacity: 1; transform: scale(1.02); border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+
+    .note-dato { background: var(--c-dato); }
+    .note-ama { background: var(--c-ama); }
+    .note-odia { background: var(--c-odia); }
+
+    .note-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .note-tag { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.2);}
+    .note-date { font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.7); font-family: monospace; }
+    .note-body { font-size: 1.05rem; line-height: 1.4; font-weight: 600; color: #fff; word-break: break-word; }
+
+    .delete-bar {
+        display: none; justify-content: space-between; align-items: center;
+        background: var(--c-red); border: 3px solid var(--border-dark);
+        padding: 15px 20px; border-radius: 16px; box-shadow: 4px 4px 0px var(--border-dark);
+    }
+    .delete-bar.show { display: flex; }
+</style>
+</head>
+<body id="bodyTag">
+
+<div class="mobile-container">
+    <header class="nav-header">
+        <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title-block">Notas</div>
+        <div class="nav-btn" onclick="toggleEditMode()" id="editBtn"><i class="fas fa-trash-can"></i></div>
+    </header>
+
+    <div class="romantic-widget" id="timeCounter">
+        <div class="heart-svg-box">
+            <svg viewBox="0 0 32 32" width="100%" height="100%">
+                <path fill="var(--c-ama)" stroke="var(--border-dark)" stroke-width="2" d="M16 28.5L14.1 26.7C7.33 20.58 3 16.5 3 11.5 3 7.42 6.42 4 10.5 4c2.31 0 4.52 1.08 5.5 2.78C16.98 5.08 19.19 4 21.5 4 25.58 4 29 7.42 29 11.5c0 5-4.33 9.08-11.1 15.2L16 28.5z"/>
+            </svg>
+            <div class="days-overlay" id="daysTotal">--</div>
+        </div>
+        <div class="capsule-info">
+            <span class="capsule-label">Días con Vanessa</span>
+            <span class="capsule-val" id="breakdownText">Calculando...</span>
+        </div>
+    </div>
+
+    <div class="delete-bar" id="deleteBar">
+        <span style="font-weight: 900; font-size: 0.8rem;" id="selText">0 SELECCIONADAS</span>
+        <button onclick="deleteSelected()" style="background:#fff; color:var(--c-red); border:2px solid var(--border-dark); padding:8px 15px; border-radius:8px; font-weight:900; font-size:0.7rem; text-transform:uppercase;">Borrar todo</button>
+    </div>
+
+    <div class="input-card" id="inputSection">
+        <div class="type-selector">
+            <div class="type-opt active" data-type="dato" onclick="setType('dato')">Dato</div>
+            <div class="type-opt" data-type="ama" onclick="setType('ama')">Ama</div>
+            <div class="type-opt" data-type="odia" onclick="setType('odia')">Odia</div>
+        </div>
+        <textarea id="noteInput" class="brutal-textarea" placeholder="Escribe un recuerdo..."></textarea>
+        <div class="save-btn" onclick="saveNote()">Guardar en Notas</div>
+    </div>
+
+    <input type="text" id="searchInput" class="search-input" placeholder="Buscar en los recuerdos..." oninput="renderNotes()">
+
+    <div class="notes-grid" id="notesList"></div>
+</div>
+
+<script>
+    let currentType = 'dato';
+    let isEditMode = false;
+    let selectedNotes = new Set();
+    const startDate = new Date('2025-10-15T00:00:00');
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCounter();
+        renderNotes();
+        setInterval(updateCounter, 60000);
+    });
+
+    function updateCounter() {
+        const now = new Date();
+        const diffDays = Math.floor(Math.abs(now - startDate) / (1000 * 60 * 60 * 24));
+        document.getElementById('daysTotal').innerText = diffDays;
+
+        let months = (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth());
+        if (now.getDate() < startDate.getDate()) months--;
+
+        let lastMonthDate = new Date(startDate);
+        lastMonthDate.setFullYear(now.getFullYear());
+        if (now.getDate() >= startDate.getDate()) lastMonthDate.setMonth(now.getMonth());
+        else lastMonthDate.setMonth(now.getMonth() - 1);
+
+        const extraDays = Math.floor((now - lastMonthDate) / (1000 * 60 * 60 * 24));
+        document.getElementById('breakdownText').innerText = `${months} meses y ${extraDays} días`;
+    }
+
+    function setType(type) {
+        currentType = type;
+        document.querySelectorAll('.type-opt').forEach(opt => opt.classList.toggle('active', opt.dataset.type === type));
+    }
+
+    function renderNotes() {
+        const notes = JSON.parse(localStorage.getItem('vanesa_db_v2') || '[]');
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const container = document.getElementById('notesList');
+        container.innerHTML = '';
+
+        notes.forEach((note, index) => {
+            if (note.text.toLowerCase().includes(searchTerm)) {
+                const isSelected = selectedNotes.has(index);
+                container.innerHTML += `
+                    <div class="note-card note-${note.type || 'dato'} ${isSelected ? 'selected' : ''}" onclick="handleNoteClick(${index})">
+                        <div class="note-header">
+                            <span class="note-tag">${note.type || 'dato'}</span>
+                            <span class="note-date">${note.date}</span>
+                        </div>
+                        <div class="note-body">${note.text}</div>
+                    </div>`;
+            }
+        });
+    }
+
+    function saveNote() {
+        const text = document.getElementById('noteInput').value.trim();
+        if (!text) return;
+        const notes = JSON.parse(localStorage.getItem('vanesa_db_v2') || '[]');
+        const timestamp = `${new Date().toLocaleDateString('es-ES')} - ${new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'})}`;
+        notes.push({ text: text, date: timestamp, type: currentType });
+        localStorage.setItem('vanesa_db_v2', JSON.stringify(notes));
+        document.getElementById('noteInput').value = '';
+        renderNotes();
+    }
+
+    function handleNoteClick(index) {
+        if (!isEditMode) return;
+        if (selectedNotes.has(index)) selectedNotes.delete(index);
+        else selectedNotes.add(index);
+        document.getElementById('selText').innerText = `${selectedNotes.size} SELECCIONADAS`;
+        renderNotes();
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        selectedNotes.clear();
+        document.getElementById('bodyTag').classList.toggle('edit-mode-active', isEditMode);
+        document.getElementById('deleteBar').classList.toggle('show', isEditMode);
+        document.getElementById('inputSection').style.display = isEditMode ? 'none' : 'flex';
+        document.getElementById('timeCounter').style.display = isEditMode ? 'none' : 'flex';
+        document.getElementById('editBtn').style.background = isEditMode ? 'var(--c-red)' : 'var(--bg-card)';
+        renderNotes();
+    }
+
+    function deleteSelected() {
+        if (selectedNotes.size === 0) return;
+        let notes = JSON.parse(localStorage.getItem('vanesa_db_v2') || '[]');
+        notes = notes.filter((_, index) => !selectedNotes.has(index));
+        localStorage.setItem('vanesa_db_v2', JSON.stringify(notes));
+        toggleEditMode();
+    }
+</script>
+</body>
+</html>

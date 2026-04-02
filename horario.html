@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>HORARIO</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="iconog.png">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --bg-base: #1E293B;
+        --bg-card: #334155;
+        --text-main: #FFFFFF;
+        --text-muted: #CBD5E1;
+        --border-dark: #0F172A;
+        --c-rust: #B45309;
+        --c-cyan: #0E7490;
+        --c-mustard: #CA8A04;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body {
+        background-color: var(--bg-base); 
+        color: var(--text-main);
+        min-height: 100vh;
+        background-image: radial-gradient(var(--border-dark) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    .mobile-container {
+        width: 100%; max-width: 600px; min-height: 100vh;
+        margin: 0 auto;
+        padding: calc(env(safe-area-inset-top, 40px) + 20px) 20px calc(env(safe-area-inset-bottom, 34px) + 30px) 20px;
+        display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* HEADER */
+    .nav-header { display: flex; gap: 12px; margin-bottom: 5px; }
+    .nav-btn {
+        width: 56px; height: 56px; border-radius: 14px;
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-main); text-decoration: none; font-size: 1.2rem;
+        box-shadow: 4px 4px 0px var(--border-dark); transition: 0.1s;
+    }
+    .nav-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px var(--border-dark); }
+    .page-title-block {
+        flex: 1; background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 14px; display: flex; align-items: center; padding: 0 20px;
+        box-shadow: 4px 4px 0px var(--border-dark); font-size: 1.2rem; font-weight: 900; text-transform: uppercase;
+    }
+
+    /* LIVE CARD */
+    .live-card {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 16px; padding: 20px; box-shadow: 5px 5px 0px var(--border-dark);
+        display: flex; flex-direction: column; gap: 15px;
+    }
+    .live-top { display: flex; justify-content: space-between; align-items: center; }
+    .badge { font-size: 0.7rem; font-weight: 800; background: var(--c-rust); color: #fff; padding: 4px 10px; border-radius: 6px; border: 2px solid var(--border-dark); }
+    .clock { font-family: monospace; font-weight: 800; font-size: 1rem; }
+
+    .status-row { display: grid; grid-template-columns: 1fr 2px 1fr; gap: 15px; align-items: center; }
+    .divider { height: 60px; background: var(--border-dark); }
+    .st-col { display: flex; flex-direction: column; gap: 2px; }
+    .st-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; }
+    .st-val { font-size: 0.85rem; font-weight: 800; }
+    .st-timer { font-size: 0.7rem; color: var(--c-mustard); font-weight: 700; }
+
+    .progress-bar { height: 8px; background: var(--border-dark); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--c-cyan); width: 0%; transition: width 1s linear; }
+
+    /* GRID Y SELECTOR */
+    .day-selector { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .day-btn {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        padding: 12px 0; border-radius: 12px; font-size: 0.75rem; font-weight: 800;
+        color: var(--text-muted); text-align: center; cursor: pointer; transition: 0.1s;
+        box-shadow: 3px 3px 0px var(--border-dark);
+    }
+    .day-btn.active { background: var(--c-mustard); color: var(--border-dark); transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--border-dark); }
+
+    .schedule-grid {
+        display: grid; grid-template-columns: 65px 1fr 1fr; 
+        grid-template-rows: 30px repeat(8, 85px); gap: 10px; margin-top: 10px;
+        position: relative; /* Necesario para la línea de tiempo */
+    }
+
+    /* ESTILO DE LA LÍNEA DEL TIEMPO ACTUAL */
+    .now-indicator {
+        position: absolute; left: 0; width: 100%; height: 3px;
+        background: #ff4757; z-index: 10; pointer-events: none;
+        display: none; box-shadow: 0 0 8px #ff4757;
+    }
+    .now-indicator::after {
+        content: 'AHORA'; position: absolute; left: 0; top: -15px;
+        font-size: 0.5rem; font-weight: 900; color: #ff4757;
+    }
+
+    .col-head { text-align: center; font-size: 0.7rem; color: var(--text-muted); font-weight: 900; text-transform: uppercase; }
+    .time-slot { display: flex; align-items: flex-start; justify-content: center; font-size: 0.65rem; color: var(--text-muted); font-family: monospace; border-top: 2px dashed rgba(255,255,255,0.1); padding-top: 5px; }
+
+    .class-card {
+        background: var(--bg-card); border: 3px solid var(--border-dark);
+        border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: center;
+        position: relative; transition: 0.1s; box-shadow: 3px 3px 0px var(--border-dark); overflow: hidden;
+    }
+    .cc-name { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; line-height: 1.1; }
+    .cc-time { font-size: 0.6rem; font-weight: 700; opacity: 0.8; margin-top: 2px; }
+    .cc-room { position: absolute; top: 4px; right: 4px; font-size: 0.5rem; font-weight: 900; background: var(--border-dark); color: #fff; padding: 1px 3px; border-radius: 4px; }
+
+    .bd-blue { background: #0E7490; }
+    .bd-red { background: #B45309; }
+    .bd-yellow { background: #CA8A04; color: #000; }
+    .bd-yellow .cc-time, .bd-yellow .cc-name { color: #000; }
+    .bd-green { background: #4D7C0F; }
+    .bd-cyan { background: #0891B2; }
+    .bd-orange { background: #C2410C; }
+    .bd-purple { background: #6D28D9; }
+
+</style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        <header class="nav-header">
+            <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i></a>
+            <div class="page-title-block">Horario</div>
+        </header>
+
+        <div class="live-card">
+            <div class="live-top">
+                <span class="badge">EN VIVO</span>
+                <span class="clock" id="clock">--:-- --</span>
+            </div>
+            <div class="status-row">
+                <div class="st-col">
+                    <span class="st-label">TÚ</span>
+                    <span class="st-val" id="myStatus">...</span>
+                    <span class="st-timer" id="myTimer">--</span>
+                </div>
+                <div class="divider"></div>
+                <div class="st-col" style="text-align: right;">
+                    <span class="st-label">VANESSA</span>
+                    <span class="st-val" id="herStatus">...</span>
+                    <span class="st-timer" id="herTimer">--</span>
+                </div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="classProgress"></div></div>
+        </div>
+
+        <div class="day-selector">
+            <div class="day-btn" onclick="setDay(1)" id="btn-1">LUN</div>
+            <div class="day-btn" onclick="setDay(2)" id="btn-2">MAR</div>
+            <div class="day-btn" onclick="setDay(3)" id="btn-3">MIÉ</div>
+            <div class="day-btn" onclick="setDay(4)" id="btn-4">JUE</div>
+            <div class="day-btn" onclick="setDay(5)" id="btn-5">VIE</div>
+        </div>
+
+        <div class="schedule-grid" id="mainScheduleGrid">
+            <div id="nowLine" class="now-indicator"></div>
+        </div>
+    </div>
+
+<script>
+    const db = {
+        1: { me: [{ s: 18, d: 1, n: "Ecuaciones Dif.", c: "bd-red", r: "E10" }], she: [{ s: 14, d: 2, n: "Costos Emp.", c: "bd-yellow" }, { s: 16, d: 1, n: "Hab. Directivas", c: "bd-green" }, { s: 17, d: 2, n: "Probabilidad", c: "bd-orange" }, { s: 19, d: 2, n: "Marco Legal", c: "bd-cyan" }] },
+        2: { me: [{ s: 14, d: 2, n: "POO", c: "bd-blue", r: "ED6" }, { s: 18, d: 2, n: "Ecuaciones Dif.", c: "bd-red", r: "Q4" }], she: [{ s: 14, d: 1, n: "Costos Emp.", c: "bd-yellow" }, { s: 15, d: 2, n: "Mercadotecnia", c: "bd-purple" }, { s: 17, d: 2, n: "Álgebra Lineal", c: "bd-blue" }] },
+        3: { me: [], she: [{ s: 14, d: 1, n: "Costos Emp.", c: "bd-yellow" }, { s: 15, d: 1, n: "Mercadotecnia", c: "bd-purple" }, { s: 16, d: 2, n: "Economía Emp.", c: "bd-red" }, { s: 18, d: 1, n: "Marco Legal", c: "bd-cyan" }, { s: 19, d: 1, n: "Álgebra Lineal", c: "bd-blue" }, { s: 20, d: 1, n: "Hab. Directivas", c: "bd-green" }] },
+        4: { me: [{ s: 17, d: 2, n: "POO", c: "bd-blue", r: "Q4" }, { s: 19, d: 2, n: "Ecuaciones Dif.", r: "E9", c: "bd-red" }], she: [{ s: 14, d: 1, n: "Hab. Directivas", c: "bd-green" }, { s: 15, d: 2, n: "Mercadotecnia", c: "bd-purple" }, { s: 17, d: 2, n: "Probabilidad", c: "bd-orange" }, { s: 19, d: 2, n: "Economía Emp.", c: "bd-red" }] },
+        5: { me: [{ s: 14, d: 1, n: "POO", c: "bd-blue", r: "E10" }], she: [{ s: 14, d: 1, n: "Costos Emp.", c: "bd-yellow" }, { s: 15, d: 1, n: "Hab. Directivas", c: "bd-green" }, { s: 16, d: 2, n: "Economía Emp.", c: "bd-red" }, { s: 18, d: 2, n: "Probabilidad", c: "bd-orange" }, { s: 20, d: 1, n: "Álgebra Lineal", c: "bd-blue" }] }
+    };
+
+    let currentDayIdx = new Date().getDay();
+    if(currentDayIdx === 0 || currentDayIdx === 6) currentDayIdx = 1;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setDay(currentDayIdx);
+        updateLiveStatus();
+        setInterval(updateLiveStatus, 1000); 
+    });
+
+    function setDay(idx) {
+        currentDayIdx = idx;
+        document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${idx}`).classList.add('active');
+        renderSchedule(idx);
+    }
+
+    function formatTime12h(h) {
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return `${h12}:00 ${ampm}`;
+    }
+
+    function renderSchedule(idx) {
+        const container = document.getElementById('mainScheduleGrid');
+        const nowLine = document.getElementById('nowLine');
+        container.innerHTML = '';
+        container.appendChild(nowLine);
+        
+        container.innerHTML += `<div class="col-head">HR</div><div class="col-head">TÚ</div><div class="col-head">VANESSA</div>`;
+        for(let i = 0; i < 8; i++) {
+            const hour = 14 + i;
+            container.innerHTML += `<div class="time-slot" style="grid-row: ${i+2}">${formatTime12h(hour)}</div>`;
+        }
+        const renderCards = (classes, colIndex) => {
+            classes.forEach(cls => {
+                const startRow = (cls.s - 14) + 2;
+                const room = cls.r ? `<div class="cc-room">${cls.r}</div>` : '';
+                container.innerHTML += `
+                    <div class="class-card ${cls.c}" style="grid-column: ${colIndex}; grid-row: ${startRow} / span ${cls.d}">
+                        ${room}
+                        <div class="cc-name">${cls.n}</div>
+                        <div class="cc-time">${formatTime12h(cls.s)} - ${formatTime12h(cls.s+cls.d)}</div>
+                    </div>`;
+            });
+        };
+        renderCards(db[idx].me, 2);
+        renderCards(db[idx].she, 3);
+        updateNowIndicator();
+    }
+
+    function updateNowIndicator() {
+        const now = new Date();
+        const h = now.getHours();
+        const m = now.getMinutes();
+        const line = document.getElementById('nowLine');
+        
+        if (h >= 14 && h < 22) {
+            const rowHeight = 85 + 10; // altura card + gap
+            const startOffset = 30 + 10; // header + gap
+            const minutesSinceStart = (h - 14) * 60 + m;
+            const topPos = startOffset + (minutesSinceStart / 60) * rowHeight;
+            line.style.top = topPos + "px";
+            line.style.display = "block";
+        } else {
+            line.style.display = "none";
+        }
+    }
+
+    function updateLiveStatus() {
+        const now = new Date();
+        const h = now.getHours();
+        const m = now.getMinutes();
+        const day = now.getDay();
+        const totalMinutes = h * 60 + m;
+
+        document.getElementById('clock').innerText = now.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit', hour12:true});
+
+        const updatePerson = (statusId, timerId, schedule) => {
+            if(!schedule) return;
+            const currentClass = schedule.find(c => h >= c.s && h < (c.s + c.d));
+            
+            if(currentClass) {
+                document.getElementById(statusId).innerText = currentClass.n;
+                const endMinutes = (currentClass.s + currentClass.d) * 60;
+                const diff = endMinutes - totalMinutes;
+                document.getElementById(timerId).innerText = `Faltan ${diff} min para terminar`;
+            } else {
+                document.getElementById(statusId).innerText = "Libre";
+                const nextClass = schedule.filter(c => c.s > h).sort((a,b) => a.s - b.s)[0];
+                if(nextClass) {
+                    const startMinutes = nextClass.s * 60;
+                    const diff = startMinutes - totalMinutes;
+                    document.getElementById(timerId).innerText = `Faltan ${diff} min para iniciar`;
+                } else {
+                    document.getElementById(timerId).innerText = "Día terminado";
+                }
+            }
+        };
+
+        updatePerson('myStatus', 'myTimer', db[day]?.me);
+        updatePerson('herStatus', 'herTimer', db[day]?.she);
+
+        const active = db[day]?.me.find(c => h >= c.s && h < (c.s + c.d)) || db[day]?.she.find(c => h >= c.s && h < (c.s + c.d));
+        if(active) {
+            const pct = Math.min(100, Math.max(0, ((totalMinutes - (active.s*60)) / (active.d*60)) * 100));
+            document.getElementById('classProgress').style.width = `${pct}%`;
+        } else document.getElementById('classProgress').style.width = '0%';
+        
+        updateNowIndicator();
+    }
+</script>
+</body>
+</html>
