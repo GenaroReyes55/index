@@ -13,77 +13,73 @@
 
 <style>
     :root {
-        --bg-base: #1E293B;
-        --bg-card: #334155;
-        --text-main: #FFFFFF;
-        --text-muted: #CBD5E1;
-        --border-dark: #0F172A;
+        /* PALETA DE VERDES MATE BASE */
+        --bg-app: #D9E2D5;       
+        --c-green-btn: #4A6D55;   
+        --c-green-light: #8DA391; 
+        --c-green-dark: #2C332D;  
+        --c-white: #FFFFFF;
+        --shadow-btn: 0 8px 20px rgba(74, 109, 85, 0.12);
+        --shadow-card: 0 4px 12px rgba(0,0,0,0.04);
         
-        /* CATEGORÍAS */
-        --c-ama: #A35D6A;
-        --c-dato: #0E7490;
-        --c-odia: #B45309;
+        /* CATEGORÍAS (Tonos Mate/Tierra) */
+        --c-ama: #B36A6A;   /* Terracota Mate */
+        --c-dato: #5C7C8A;  /* Azul Pizarra Mate */
+        --c-odia: #8A6E5C;  /* Tierra Cálido */
         
-        --c-red: #991B1B;
+        --c-alert: #FEE2E2; /* Fondo de modo edición (Rojo suave) */
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
     body {
-        background-color: var(--bg-base); 
-        color: var(--text-main);
+        background-color: var(--bg-app); 
+        color: var(--c-green-dark);
         min-height: 100vh;
         transition: background 0.3s ease;
-        background-image: radial-gradient(var(--border-dark) 1px, transparent 1px);
-        background-size: 20px 20px;
     }
 
     /* ESTILO BORRADO ACTIVO */
-    body.edit-mode-active {
-        background-color: #2d1a1a;
-        background-image: radial-gradient(var(--c-red) 1px, transparent 1px);
-    }
+    body.edit-mode-active { background-color: var(--c-alert); }
 
     .mobile-container {
         width: 100%; max-width: 600px; min-height: 100vh;
         margin: 0 auto;
-        padding: calc(env(safe-area-inset-top, 40px) + 20px) 24px calc(env(safe-area-inset-bottom, 34px) + 30px) 24px;
-        display: flex; flex-direction: column; gap: 20px;
+        padding: calc(env(safe-area-inset-top, 40px) + 15px) 20px calc(env(safe-area-inset-bottom, 34px) + 30px) 20px;
+        display: flex; flex-direction: column; gap: 16px;
     }
 
     /* HEADER */
-    .nav-header { display: flex; gap: 12px; align-items: center; }
+    .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 12px;}
     .nav-btn {
-        width: 50px; height: 50px; border-radius: 14px;
-        background: var(--bg-card); border: 3px solid var(--border-dark);
+        width: 45px; height: 45px; border-radius: 16px; flex-shrink: 0;
+        background: var(--c-white); color: var(--c-green-dark);
         display: flex; align-items: center; justify-content: center;
-        color: var(--text-main); text-decoration: none; font-size: 1.1rem;
-        box-shadow: 4px 4px 0px var(--border-dark); transition: 0.1s;
-        cursor: pointer;
+        text-decoration: none; font-size: 1.2rem;
+        box-shadow: var(--shadow-card); cursor: pointer; transition: 0.2s;
     }
-    .nav-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--border-dark); }
+    .nav-btn:active { transform: scale(0.95); }
     
     .page-title-block {
-        flex: 1; background: var(--bg-card); border: 3px solid var(--border-dark);
-        border-radius: 14px; height: 50px; display: flex; align-items: center; padding: 0 20px;
-        box-shadow: 4px 4px 0px var(--border-dark); font-size: 1.1rem; font-weight: 900; text-transform: uppercase;
+        flex: 1; display: flex; justify-content: center; align-items: center;
+        font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
     }
 
-    /* --- NUEVO CONTADOR CORAZÓN SVG --- */
+    /* --- CONTADOR CORAZÓN SVG (AHORA VERDE MATE) --- */
     .romantic-widget {
         display: flex; align-items: center;
-        background: var(--bg-card); border: 3px solid var(--border-dark);
-        border-radius: 24px; padding: 12px;
-        box-shadow: 6px 6px 0px var(--border-dark);
+        background: var(--c-green-btn); /* Fondo más verde */
+        border-radius: 28px; padding: 20px;
+        box-shadow: var(--shadow-btn);
         margin-bottom: 5px;
     }
 
     .heart-svg-box {
-        width: 80px; height: 80px;
+        width: 70px; height: 70px;
         position: relative;
         display: flex; align-items: center; justify-content: center;
         animation: heartbeat 1.5s infinite ease-in-out;
-        filter: drop-shadow(3px 3px 0px var(--border-dark));
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15)); 
     }
 
     @keyframes heartbeat {
@@ -93,85 +89,97 @@
 
     .days-overlay {
         position: absolute;
-        top: 50%; left: 50%;
+        top: 48%; left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 1.8rem; font-weight: 900;
-        color: #fff; text-shadow: 2px 2px 0px var(--border-dark);
-        z-index: 2;
+        font-size: 1.4rem; font-weight: 900;
+        color: var(--c-white); z-index: 2;
     }
 
     .capsule-info {
-        flex: 1; padding-left: 15px;
-        display: flex; flex-direction: column; gap: 2px;
+        flex: 1; padding-left: 20px;
+        display: flex; flex-direction: column; gap: 4px;
     }
-    .capsule-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
-    .capsule-val { font-size: 1rem; font-weight: 800; color: #fff; line-height: 1.2; }
+    .capsule-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: rgba(255,255,255,0.8); letter-spacing: 0.5px; }
+    .capsule-val { font-size: 1.15rem; font-weight: 900; color: var(--c-white); line-height: 1.1; }
 
-    /* INPUT */
+    /* INPUT SECTION (AHORA VERDE MATE) */
     .input-card {
-        background: var(--bg-card); border: 3px solid var(--border-dark);
-        border-radius: 20px; padding: 20px; box-shadow: 5px 5px 0px var(--border-dark);
+        background: var(--c-green-btn); /* Fondo más verde */
+        border-radius: 24px; padding: 20px; 
+        box-shadow: var(--shadow-btn);
         display: flex; flex-direction: column; gap: 15px;
     }
     .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .type-opt {
-        background: var(--bg-base); border: 2px solid var(--border-dark);
-        padding: 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 900;
-        text-align: center; text-transform: uppercase; cursor: pointer; color: var(--text-muted);
+        background: rgba(255,255,255,0.15); /* Translúcido sobre verde */
+        border-radius: 14px; 
+        padding: 12px; font-size: 0.8rem; font-weight: 800;
+        text-align: center; text-transform: uppercase; cursor: pointer; 
+        color: var(--c-white); transition: 0.2s;
     }
-    .type-opt[data-type="dato"].active { background: var(--c-dato); color: #fff; }
-    .type-opt[data-type="ama"].active { background: var(--c-ama); color: #fff; }
-    .type-opt[data-type="odia"].active { background: var(--c-odia); color: #fff; }
+    .type-opt[data-type="dato"].active { background: var(--c-dato); color: var(--c-white); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .type-opt[data-type="ama"].active { background: var(--c-ama); color: var(--c-white); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .type-opt[data-type="odia"].active { background: var(--c-odia); color: var(--c-white); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
 
     .brutal-textarea {
-        width: 100%; min-height: 80px; background: var(--bg-base);
-        border: 3px solid var(--border-dark); border-radius: 12px;
-        padding: 15px; color: #fff; font-size: 1rem; outline: none; resize: none; font-weight: 500;
+        width: 100%; min-height: 90px; 
+        background: rgba(255,255,255,0.1); /* Translúcido sobre verde */
+        border: 2px solid transparent; border-radius: 16px;
+        padding: 16px; color: var(--c-white); font-size: 1rem; 
+        outline: none; resize: none; font-weight: 600; transition: 0.2s;
     }
+    .brutal-textarea::placeholder { color: rgba(255,255,255,0.6); }
+    .brutal-textarea:focus { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.15); }
+    
     .save-btn {
-        background: #fff; border: 3px solid var(--border-dark);
-        padding: 14px; border-radius: 14px; color: #000; font-size: 0.9rem;
+        background: var(--c-white); /* Botón blanco para resaltar */
+        color: var(--c-green-btn); /* Letras verdes */
+        padding: 16px; border-radius: 16px; font-size: 0.9rem;
         font-weight: 900; text-align: center; cursor: pointer; text-transform: uppercase;
-        box-shadow: 4px 4px 0px var(--border-dark);
+        transition: 0.2s; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
+    .save-btn:active { transform: scale(0.97); }
 
-    /* BUSCADOR */
+    /* BUSCADOR (AHORA VERDE MATE) */
     .search-input {
-        width: 100%; background: var(--bg-card); border: 3px solid var(--border-dark);
-        border-radius: 14px; padding: 12px 20px; color: #fff;
-        font-weight: 600; outline: none; box-shadow: 3px 3px 0px var(--border-dark);
+        width: 100%; background: var(--c-green-btn); border: none;
+        border-radius: 16px; padding: 16px 20px; color: var(--c-white);
+        font-weight: 700; outline: none; box-shadow: var(--shadow-btn);
+        font-size: 0.95rem; transition: 0.2s;
     }
+    .search-input::placeholder { color: rgba(255,255,255,0.7); }
+    .search-input:focus { outline: 2px solid var(--c-green-light); outline-offset: 2px; }
 
     /* LISTA DE NOTAS Y ANIMACIÓN BORRADO */
-    .notes-grid { display: flex; flex-direction: column-reverse; gap: 15px; }
+    .notes-grid { display: flex; flex-direction: column-reverse; gap: 12px; margin-top: 5px; }
     
     .note-card {
-        border: 3px solid var(--border-dark);
-        border-radius: 16px; padding: 18px; position: relative;
-        box-shadow: 4px 4px 0px var(--border-dark);
-        transition: 0.2s;
+        border-radius: 20px; padding: 20px; position: relative;
+        box-shadow: var(--shadow-card); color: var(--c-white);
+        transition: 0.2s; border: 2px solid transparent;
     }
 
     @keyframes shake { 0% { transform: rotate(0.6deg); } 50% { transform: rotate(-0.6deg); } 100% { transform: rotate(0.6deg); } }
     
-    .edit-mode-active .note-card { animation: shake 0.25s infinite; opacity: 0.8; }
-    .edit-mode-active .note-card.selected { animation: none; opacity: 1; transform: scale(1.02); border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+    .edit-mode-active .note-card { animation: shake 0.25s infinite; opacity: 0.8; cursor: pointer; }
+    .edit-mode-active .note-card.selected { animation: none; opacity: 1; transform: scale(1.02); border-color: var(--c-white); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
     .note-dato { background: var(--c-dato); }
     .note-ama { background: var(--c-ama); }
     .note-odia { background: var(--c-odia); }
 
-    .note-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .note-tag { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.2);}
-    .note-date { font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.7); font-family: monospace; }
-    .note-body { font-size: 1.05rem; line-height: 1.4; font-weight: 600; color: #fff; word-break: break-word; }
+    .note-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .note-tag { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,0.2); }
+    .note-date { font-size: 0.7rem; font-weight: 700; opacity: 0.8; font-family: monospace; }
+    .note-body { font-size: 1.05rem; line-height: 1.5; font-weight: 600; word-break: break-word; }
 
     .delete-bar {
         display: none; justify-content: space-between; align-items: center;
-        background: var(--c-red); border: 3px solid var(--border-dark);
-        padding: 15px 20px; border-radius: 16px; box-shadow: 4px 4px 0px var(--border-dark);
+        background: var(--c-ama); color: var(--c-white);
+        padding: 16px 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(179, 106, 106, 0.2);
     }
     .delete-bar.show { display: flex; }
+    .del-btn { background: var(--c-white); color: var(--c-ama); border: none; padding: 8px 16px; border-radius: 10px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; }
 </style>
 </head>
 <body id="bodyTag">
@@ -186,19 +194,19 @@
     <div class="romantic-widget" id="timeCounter">
         <div class="heart-svg-box">
             <svg viewBox="0 0 32 32" width="100%" height="100%">
-                <path fill="var(--c-ama)" stroke="var(--border-dark)" stroke-width="2" d="M16 28.5L14.1 26.7C7.33 20.58 3 16.5 3 11.5 3 7.42 6.42 4 10.5 4c2.31 0 4.52 1.08 5.5 2.78C16.98 5.08 19.19 4 21.5 4 25.58 4 29 7.42 29 11.5c0 5-4.33 9.08-11.1 15.2L16 28.5z"/>
+                <path fill="var(--c-ama)" d="M16 28.5L14.1 26.7C7.33 20.58 3 16.5 3 11.5 3 7.42 6.42 4 10.5 4c2.31 0 4.52 1.08 5.5 2.78C16.98 5.08 19.19 4 21.5 4 25.58 4 29 7.42 29 11.5c0 5-4.33 9.08-11.1 15.2L16 28.5z"/>
             </svg>
             <div class="days-overlay" id="daysTotal">--</div>
         </div>
         <div class="capsule-info">
-            <span class="capsule-label">Días con Vanessa</span>
+            <span class="capsule-label">Tiempo con Vanessa</span>
             <span class="capsule-val" id="breakdownText">Calculando...</span>
         </div>
     </div>
 
     <div class="delete-bar" id="deleteBar">
-        <span style="font-weight: 900; font-size: 0.8rem;" id="selText">0 SELECCIONADAS</span>
-        <button onclick="deleteSelected()" style="background:#fff; color:var(--c-red); border:2px solid var(--border-dark); padding:8px 15px; border-radius:8px; font-weight:900; font-size:0.7rem; text-transform:uppercase;">Borrar todo</button>
+        <span style="font-weight: 800; font-size: 0.85rem;" id="selText">0 SELECCIONADAS</span>
+        <button class="del-btn" onclick="deleteSelected()">Borrar</button>
     </div>
 
     <div class="input-card" id="inputSection">
@@ -207,8 +215,8 @@
             <div class="type-opt" data-type="ama" onclick="setType('ama')">Ama</div>
             <div class="type-opt" data-type="odia" onclick="setType('odia')">Odia</div>
         </div>
-        <textarea id="noteInput" class="brutal-textarea" placeholder="Escribe un recuerdo..."></textarea>
-        <div class="save-btn" onclick="saveNote()">Guardar en Notas</div>
+        <textarea id="noteInput" class="brutal-textarea" placeholder="Escribe un recuerdo o detalle..."></textarea>
+        <div class="save-btn" onclick="saveNote()">Guardar Nota</div>
     </div>
 
     <input type="text" id="searchInput" class="search-input" placeholder="Buscar en los recuerdos..." oninput="renderNotes()">
@@ -220,6 +228,8 @@
     let currentType = 'dato';
     let isEditMode = false;
     let selectedNotes = new Set();
+    
+    // FECHA CORRECTA DE ANIVERSARIO: 15 de octubre de 2025
     const startDate = new Date('2025-10-15T00:00:00');
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -235,13 +245,15 @@
 
         let months = (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth());
         if (now.getDate() < startDate.getDate()) months--;
+        // Evitar meses negativos si la fecha es futura
+        if (months < 0) months = 0;
 
         let lastMonthDate = new Date(startDate);
         lastMonthDate.setFullYear(now.getFullYear());
         if (now.getDate() >= startDate.getDate()) lastMonthDate.setMonth(now.getMonth());
         else lastMonthDate.setMonth(now.getMonth() - 1);
 
-        const extraDays = Math.floor((now - lastMonthDate) / (1000 * 60 * 60 * 24));
+        const extraDays = Math.floor(Math.abs(now - lastMonthDate) / (1000 * 60 * 60 * 24));
         document.getElementById('breakdownText').innerText = `${months} meses y ${extraDays} días`;
     }
 
@@ -297,7 +309,15 @@
         document.getElementById('deleteBar').classList.toggle('show', isEditMode);
         document.getElementById('inputSection').style.display = isEditMode ? 'none' : 'flex';
         document.getElementById('timeCounter').style.display = isEditMode ? 'none' : 'flex';
-        document.getElementById('editBtn').style.background = isEditMode ? 'var(--c-red)' : 'var(--bg-card)';
+        
+        const editBtn = document.getElementById('editBtn');
+        if(isEditMode) {
+            editBtn.innerHTML = '<i class="fas fa-times"></i>';
+            editBtn.style.color = 'var(--c-ama)'; // Rojo terracota al activar borrar
+        } else {
+            editBtn.innerHTML = '<i class="fas fa-trash-can"></i>';
+            editBtn.style.color = 'var(--c-green-dark)';
+        }
         renderNotes();
     }
 

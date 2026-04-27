@@ -14,192 +14,223 @@
 
     <style>
         :root {
-            --bg-base: #1E293B;         
-            --bg-card: #334155;         
-            --text-main: #FFFFFF;       
-            --text-muted: #CBD5E1;      
-            --border-dark: #0F172A;     
-            --c-rust: #B45309;          
-            --c-sage: #4D7C0F;          
-            --c-mustard: #CA8A04;       
-            --c-pink: #A35D6A;          
-            --c-cyan: #0E7490;          
-            --c-purple: #6D28D9;
-            --c-navy: #1E3A8A; /* Color Azul Marino */
+            /* FONDO: Verde salvia muy suave */
+            --bg-app: #D9E2D5;       
+            
+            /* PALETA DE VERDES SUAVES (MATE) */
+            --c-green-btn: #4A6D55;   /* Verde salvia oscuro mate para el BOTÓN */
+            --c-green-light: #8DA391; /* Verde grisáceo claro para el CÍRCULO */
+            --c-green-dark: #2C332D;  /* Texto oscuro profesional */
+            
+            --c-white: #FFFFFF;
+            --shadow-btn: 0 8px 20px rgba(74, 109, 85, 0.12);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
         body {
-            background-color: var(--bg-base); 
-            color: var(--text-main);
+            background-color: var(--bg-app); 
+            color: var(--c-green-dark);
             min-height: 100vh;
-            background-image: radial-gradient(var(--border-dark) 1px, transparent 1px);
-            background-size: 20px 20px;
         }
 
         .mobile-container {
             width: 100%; max-width: 600px; min-height: 100vh;
             margin: 0 auto; 
             padding: calc(env(safe-area-inset-top, 40px) + 20px) 24px calc(env(safe-area-inset-bottom, 34px) + 30px) 24px;
-            display: flex; flex-direction: column; gap: 24px;
+            display: flex; flex-direction: column; gap: 16px;
         }
 
-        .modular-header { display: flex; align-items: stretch; gap: 16px; margin-bottom: 5px; }
-        .header-info-block {
-            flex: 1; background: var(--bg-card); border: 3px solid var(--border-dark);
-            border-radius: 16px; padding: 16px 20px; box-shadow: 4px 4px 0px var(--border-dark);
-            display: flex; flex-direction: column; justify-content: center;
+        /* HEADER */
+        .top-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 5px;
         }
-        .date-display { font-size: 0.75rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; }
-        .greeting { font-size: 2.2rem; font-weight: 900; line-height: 1; text-transform: uppercase; }
+        .greeting-box { display: flex; flex-direction: column; }
+        .greeting { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        .date-display { font-size: 0.85rem; font-weight: 600; opacity: 0.6; text-transform: lowercase; }
 
-        .profile-block { 
-            width: 76px; height: 76px; border-radius: 16px; overflow: hidden; 
-            border: 3px solid var(--border-dark); cursor: pointer; transition: 0.1s;
-            background: var(--bg-card); box-shadow: 4px 4px 0px var(--border-dark);
+        .profile-pic { 
+            width: 58px; height: 58px; border-radius: 20px; overflow: hidden; 
+            cursor: pointer; background: var(--c-white); padding: 2px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        .profile-block img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-pic img { width: 100%; height: 100%; object-fit: cover; border-radius: 18px; }
 
-        .app-layout { display: flex; flex-direction: column; gap: 20px; }
-        .brutal-card {
-            background: var(--bg-card); border: 3px solid var(--border-dark);
-            border-radius: 16px; padding: 20px; text-decoration: none; color: var(--text-main);
-            display: flex; flex-direction: column; transition: 0.3s; box-shadow: 5px 5px 0px var(--border-dark);
+        .icon-circle {
+            width: 55px; height: 55px; 
+            background: var(--c-green-light); 
+            color: var(--c-white);            
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; 
+            flex-shrink: 0;
         }
-        .brutal-card:active { transform: translate(5px, 5px); box-shadow: 0px 0px 0px var(--border-dark); }
 
-        .brutal-icon {
-            width: 42px; height: 42px; border-radius: 10px; border: 2px solid var(--border-dark);
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 12px;
-            background: #fff; color: var(--border-dark);
+        /* TARJETAS HORIZONTALES */
+        .full-card {
+            background: var(--c-green-btn); 
+            border-radius: 28px;
+            padding: 20px;
+            color: var(--c-white); 
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow-btn);
+            transition: 0.2s;
+        }
+        .full-card:active { transform: scale(0.97); }
+
+        .card-info { display: flex; flex-direction: column; }
+        .card-label { font-size: 0.8rem; font-weight: 600; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+        .card-val { font-size: 1.1rem; font-weight: 800; margin-top: 2px; line-height: 1.2; }
+
+        /* GRID DE TARJETAS */
+        .explore-grid {
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 16px;
         }
         
-        /* El color de .card-horario ahora se controla dinámicamente por JS */
-        .card-horario { background: var(--c-cyan); } 
-        
-        .card-title { font-size: 1rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
-        .card-value { font-size: 1.4rem; font-weight: 900; }
-
-        .split-block { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .half-card {
-            background: var(--bg-card); border: 3px solid var(--border-dark);
-            border-radius: 16px; padding: 18px; text-decoration: none; color: var(--text-main);
+        .green-widget {
+            background: var(--c-green-btn); 
+            border-radius: 24px;
+            padding: 24px 15px;
             display: flex; flex-direction: column; align-items: center; text-align: center;
-            box-shadow: 4px 4px 0px var(--border-dark); transition: 0.1s;
+            text-decoration: none; 
+            color: var(--c-white); 
+            transition: 0.2s;
+            box-shadow: var(--shadow-btn);
         }
-        .half-val { font-size: 1.3rem; font-weight: 900; }
-        .half-lbl { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+        .green-widget:active { transform: scale(0.95); }
+        .green-widget .icon-circle { margin-bottom: 12px; }
 
-        .ic-sage { background: var(--c-sage); }
-        .ic-mustard { background: var(--c-mustard); }
-        .ic-pink { background: var(--c-pink); }
-        .ic-rust { background: var(--c-rust); }
-        .ic-purple { background: var(--c-purple); }
+        .widget-title { font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 0.5px; }
+        .widget-val { font-size: 1.3rem; font-weight: 800; margin-top: 4px; }
 
-        .card-habitos { flex-direction: row; align-items: center; gap: 16px; padding: 16px 20px; }
-        
+        /* WIDGET CONTADOR ABAJO */
+        .counter-card {
+            background: var(--c-green-btn); 
+            border-radius: 28px;
+            padding: 24px;
+            color: var(--c-white); 
+            box-shadow: var(--shadow-btn);
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .counter-card .card-info { align-items: center; }
+
+        /* MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.7); z-index: 100;
-            display: none; justify-content: center; align-items: center; padding: 20px;
+            background: rgba(44, 51, 45, 0.5); backdrop-filter: blur(4px); z-index: 100;
+            display: none; justify-content: center; align-items: flex-end;
         }
         .modal-overlay.active { display: flex; }
         .modal-content {
-            background: var(--bg-base); border: 4px solid var(--border-dark);
-            border-radius: 20px; width: 90%; max-width: 360px; padding: 25px;
-            box-shadow: 8px 8px 0px var(--border-dark);
+            background: var(--c-white); border-radius: 32px 32px 0 0; width: 100%; padding: 30px 24px 40px 24px;
+            display: flex; flex-direction: column; gap: 12px; text-align: center;
         }
-        .backup-btn {
-            display: flex; align-items: center; gap: 12px; background: var(--bg-card);
-            border: 3px solid var(--border-dark); padding: 16px 20px; border-radius: 12px;
-            color: var(--text-main); font-size: 0.95rem; font-weight: 800; cursor: pointer;
-            box-shadow: 4px 4px 0px var(--border-dark); text-transform: uppercase; width: 100%; margin-top: 10px;
+        .sys-btn {
+            background: var(--bg-app); padding: 16px; border-radius: 18px; 
+            color: var(--c-green-btn); font-size: 1rem; font-weight: 700; border: none; cursor: pointer;
         }
+        .btn-cancel { background: transparent; color: #DC2626; margin-top: 5px; font-weight: 700; }
     </style>
 </head>
 <body>
 
     <div class="mobile-container">
-        <header class="modular-header">
-            <div class="header-info-block">
+        
+        <header class="top-nav">
+            <div class="greeting-box">
+                <div class="greeting">Hola, Genaro</div>
                 <div class="date-display" id="dateDisplay">Cargando...</div>
-                <div class="greeting">Genaro.</div>
             </div>
-            <div class="profile-block" onclick="toggleModal(true)">
+            <div class="profile-pic" onclick="toggleModal(true)">
                 <img src="iconog.png" alt="Perfil">
             </div>
         </header>
 
-        <main class="app-layout">
-            <a href="horario.html" class="brutal-card card-horario">
-                <div class="brutal-icon"><i class="fa-regular fa-clock"></i></div>
-                <div class="card-title">Agenda Actual</div>
-                <div class="card-value" id="scheduleData">Calculando...</div>
+        <a href="horario.html" class="full-card">
+            <div class="icon-circle"><i class="fa-regular fa-clock"></i></div>
+            <div class="card-info">
+                <div class="card-label" id="scheduleLabel">Agenda Actual</div>
+                <div class="card-val" id="scheduleData">Sincronizando...</div>
+            </div>
+        </a>
+
+        <div class="explore-grid">
+            <a href="ahorro.html" class="green-widget">
+                <div class="icon-circle"><i class="fa-solid fa-coins"></i></div>
+                <div class="widget-title">Capital</div>
+                <div class="widget-val" id="moneyData">$0</div>
             </a>
 
-            <div class="split-block">
-                <a href="ahorro.html" class="half-card">
-                    <div class="brutal-icon ic-sage"><i class="fa-solid fa-coins" style="color:#fff;"></i></div>
-                    <div class="half-val" id="moneyData">$0</div>
-                    <div class="half-lbl">Capital</div>
-                </a>
-                <a href="meta.html" class="half-card">
-                    <div class="brutal-icon ic-mustard"><i class="fa-solid fa-piggy-bank" style="color:#fff;"></i></div>
-                    <div class="half-val" id="metaData">0%</div>
-                    <div class="half-lbl">Metas</div>
-                </a>
-            </div>
-
-            <div class="split-block">
-                <a href="salud.html" class="half-card">
-                    <div class="brutal-icon ic-pink"><i class="fa-solid fa-heart-pulse" style="color:#fff;"></i></div>
-                    <div class="half-val" id="healthData">0</div>
-                    <div class="half-lbl">Salud</div>
-                </a>
-                <a href="notas.html" class="half-card">
-                    <div class="brutal-icon ic-rust"><i class="fa-solid fa-box-archive" style="color:#fff;"></i></div>
-                    <div class="half-val" id="notesData">0</div>
-                    <div class="half-lbl">Notas</div>
-                </a>
-            </div>
-
-            <a href="habitos.html" class="brutal-card card-habitos">
-                <div class="brutal-icon ic-purple"><i class="fa-solid fa-list-check" style="color:#fff;"></i></div>
-                <div style="flex: 1;">
-                    <div class="card-title" style="margin-bottom: 0;">Hábitos Diarios</div>
-                    <div class="card-sub" id="habitsData" style="font-weight: 800; color: var(--text-muted); margin-top: 0;">0/6 Completados</div>
-                </div>
-                <i class="fa-solid fa-arrow-right" style="font-size: 1.2rem; color: #fff;"></i>
+            <a href="meta.html" class="green-widget">
+                <div class="icon-circle"><i class="fa-solid fa-bullseye"></i></div>
+                <div class="widget-title">Metas</div>
+                <div class="widget-val" id="metaData">0%</div>
             </a>
-        </main>
-        
+
+            <a href="salud.html" class="green-widget">
+                <div class="icon-circle"><i class="fa-solid fa-heart-pulse"></i></div>
+                <div class="widget-title">Salud</div>
+                <div class="widget-val" id="healthData">0 regs</div>
+            </a>
+
+            <a href="notas.html" class="green-widget">
+                <div class="icon-circle"><i class="fa-solid fa-box-archive"></i></div>
+                <div class="widget-title">Notas</div>
+                <div class="widget-val" id="notesData">0 logs</div>
+            </a>
+        </div>
+
+        <div class="counter-card">
+            <div class="card-info">
+                <div class="card-label">Días desde el 15 de Abril de 2026</div>
+                <div class="card-val" id="daysCounter" style="font-size: 1.3rem;">0 días</div>
+            </div>
+        </div>
+
         <div class="modal-overlay" id="backupModal" onclick="checkCloseModal(event)">
-            <div class="modal-content">
-                <h3 style="font-weight: 900; text-transform: uppercase; color: #fff;">Sistema</h3>
-                <button class="backup-btn" onclick="exportBackup()">Descargar Respaldo</button>
-                <label class="backup-btn">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <h3 style="margin-bottom: 10px; font-weight: 800; color: var(--c-green-dark);">Ajustes</h3>
+                <button class="sys-btn" onclick="exportBackup()">Descargar Respaldo</button>
+                <label class="sys-btn">
                     <span>Restaurar Datos</span>
                     <input type="file" style="display: none;" accept=".json" onchange="importBackup(event)">
                 </label>
-                <button class="backup-btn" style="background: var(--c-pink);" onclick="toggleModal(false)">Cerrar</button>
+                <button class="btn-cancel" onclick="toggleModal(false)">Cerrar</button>
             </div>
         </div>
     </div>
 
     <script>
+        // HORARIOS (s = inicio decimal, d = duración)
         const scheduleDB = {
-            1: [{ s: 18, d: 1, n: "Ecuaciones Dif.", r: "E10" }],
-            2: [{ s: 14, d: 2, n: "POO", r: "ED6" }, { s: 18, d: 2, n: "Ecuaciones Dif.", r: "Q4" }],
-            3: [],
-            4: [{ s: 17, d: 2, n: "POO", r: "Q4" }, { s: 19, d: 2, n: "Ecuaciones Dif.", r: "E9" }],
-            5: [{ s: 14, d: 1, n: "POO", r: "E10" }]
+            1: [{ s: 7.5, d: 6, n: "Trabajo" }, { s: 18, d: 1, n: "Ecuaciones Dif." }], 
+            2: [{ s: 7.5, d: 5.5, n: "Trabajo" }, { s: 14, d: 2, n: "POO" }, { s: 18, d: 2, n: "Ecuaciones Dif." }], 
+            3: [{ s: 7.5, d: 6, n: "Trabajo" }], 
+            4: [
+                { s: 7.5, d: 6, n: "Trabajo (T1)" }, 
+                { s: 17, d: 2, n: "POO" }, 
+                { s: 18, d: 4, n: "Trabajo (T2)" }, 
+                { s: 19, d: 2, n: "Ecuaciones Dif." }
+            ], 
+            5: [{ s: 7.5, d: 5.5, n: "Trabajo" }, { s: 14, d: 1, n: "POO" }], 
+            6: [{ s: 7.5, d: 7, n: "Trabajo" }] 
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             updateDate();
             loadDashboard();
-            setInterval(updateSchedule, 60000);
+            updateDaysCounter();
+            updateSchedule(); 
+            setInterval(updateSchedule, 30000); 
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js').catch(err => console.warn(err));
@@ -209,7 +240,54 @@
         function updateDate() {
             const now = new Date();
             const options = { weekday: 'long', day: 'numeric', month: 'long' };
-            document.getElementById('dateDisplay').innerText = now.toLocaleDateString('es-ES', options).replace(',', '');
+            document.getElementById('dateDisplay').innerText = now.toLocaleDateString('es-ES', options);
+        }
+
+        function updateDaysCounter() {
+            const startDate = new Date('2026-04-15T00:00:00');
+            const now = new Date();
+            const diffTime = Math.abs(now - startDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            document.getElementById('daysCounter').innerText = `${diffDays} días`;
+        }
+
+        function updateSchedule() {
+            const now = new Date();
+            const day = now.getDay();
+            const currentHour = now.getHours() + (now.getMinutes() / 60);
+            
+            const labelEl = document.getElementById('scheduleLabel');
+            const dataEl = document.getElementById('scheduleData');
+
+            if (scheduleDB[day]) {
+                const dayEvents = [...scheduleDB[day]].sort((a, b) => a.s - b.s);
+                const cur = dayEvents.find(c => currentHour >= c.s && currentHour < (c.s + c.d));
+                const nxt = dayEvents.find(c => c.s > currentHour);
+
+                if (cur) {
+                    labelEl.innerText = "En curso: " + cur.n;
+                    dataEl.innerHTML = `Sales en ${getTimeDiff(cur.s + cur.d, currentHour)} ${nxt ? `<br><small style="opacity:0.7; font-size:0.8rem;">Sig: ${nxt.n} en ${getTimeDiff(nxt.s, currentHour)}</small>` : ''}`;
+                } else if (nxt) {
+                    labelEl.innerText = `Próximo: ${nxt.n}`;
+                    dataEl.innerText = `Entras en ${getTimeDiff(nxt.s, currentHour)}`;
+                } else {
+                    labelEl.innerText = "Agenda";
+                    dataEl.innerText = "Jornada terminada";
+                }
+            } else {
+                labelEl.innerText = "Agenda";
+                dataEl.innerText = "Día libre";
+            }
+        }
+
+        function getTimeDiff(targetHour, currentHour) {
+            const diffDecimal = targetHour - currentHour;
+            const totalMinutes = Math.round(diffDecimal * 60);
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+            
+            if (h > 0) return `${h}h ${m}m`;
+            return `${m} min`;
         }
 
         function loadDashboard() {
@@ -221,63 +299,16 @@
             const baseBalance = parseFloat(localStorage.getItem('meta_v3_balance')) || 0;
             const events = JSON.parse(localStorage.getItem('meta_v3_events') || '[]');
             const checkedStates = JSON.parse(localStorage.getItem('meta_v3_checked') || '{}');
-            
             let sumChecked = 0;
             events.forEach(ev => { if (checkedStates[ev.id]) sumChecked += parseFloat(ev.a); });
-            
-            const saldoReal = baseBalance + sumChecked;
-            const pct = Math.min(100, Math.round((saldoReal / goal) * 100)) || 0;
+            const pct = Math.min(100, Math.round(((baseBalance + sumChecked) / goal) * 100)) || 0;
             document.getElementById('metaData').innerText = pct + "%";
 
-            // 3. SALUD (Lógica sincronizada con salud.html)
             const salud = JSON.parse(localStorage.getItem('ot_lugares_log') || '{}');
-            const totalMarcas = Object.keys(salud).length;
-            document.getElementById('healthData').innerText = totalMarcas;
+            document.getElementById('healthData').innerText = Object.keys(salud).length + " regs";
             
             const notas = JSON.parse(localStorage.getItem('vanesa_db_v2') || '[]');
-            document.getElementById('notesData').innerText = Array.isArray(notas) ? notas.length : 0;
-
-            const now = new Date();
-            const hKey = `habits_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-            const habits = JSON.parse(localStorage.getItem(hKey) || '[]');
-            document.getElementById('habitsData').innerText = `${habits.length}/6 Completados`;
-
-            updateSchedule();
-        }
-
-        function updateSchedule() {
-            const now = new Date();
-            const day = now.getDay();
-            const hour = now.getHours();
-            const card = document.querySelector('.card-horario');
-            let status = "Libre";
-            let color = "#4D7C0F"; // Verde por defecto (fin de semana o terminó el día)
-
-            if (scheduleDB[day]) {
-                const cur = scheduleDB[day].find(c => hour >= c.s && hour < (c.s + c.d));
-                if (cur) {
-                    status = "En curso: " + cur.n;
-                    // Detectar materia para el color
-                    if (cur.n.includes("POO")) color = "#1E3A8A"; // Azul Marino
-                    else if (cur.n.includes("Ecuaciones")) color = "#991B1B"; // Rojo
-                    else color = "#0E7490"; // Cyan para otras clases
-                } else {
-                    const nxt = scheduleDB[day].find(c => c.s > hour);
-                    if (nxt) {
-                        status = `Sig: ${nxt.n}`;
-                        color = "#CA8A04"; // Amarillo (Clase pendiente)
-                    } else {
-                        status = "Día Terminado";
-                        color = "#4D7C0F"; // Verde
-                    }
-                }
-            } else {
-                status = "Fin de semana";
-                color = "#4D7C0F"; // Verde
-            }
-            
-            document.getElementById('scheduleData').innerText = status;
-            if(card) card.style.backgroundColor = color;
+            document.getElementById('notesData').innerText = (Array.isArray(notas) ? notas.length : 0) + " logs";
         }
 
         function toggleModal(s) { document.getElementById('backupModal').classList.toggle('active', s); }
@@ -286,7 +317,7 @@
             const blob = new Blob([JSON.stringify(localStorage)], {type: "application/json"});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `Backup_Nexus_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
         }
         function importBackup(e) {

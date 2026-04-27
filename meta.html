@@ -10,162 +10,182 @@
 
 <style>
     :root {
-        --bg-base: #1E293B;
-        --bg-card: #334155;
-        --text-main: #FFFFFF;
-        --text-muted: #CBD5E1;
-        --border-dark: #0F172A;
-        --c-rust: #B45309;
-        --c-sage: #4D7C0F;
-        --c-mustard: #CA8A04;
-        --c-cyan: #0E7490;
-        --c-red: #991B1B;
-        --c-purple: #6D28D9;
+        /* PALETA DE VERDES MATE */
+        --bg-app: #D9E2D5;       
+        --c-green-btn: #4A6D55;   
+        --c-green-light: #8DA391; 
+        --c-green-dark: #2C332D;  
+        --c-white: #FFFFFF;
+        --shadow-btn: 0 8px 20px rgba(74, 109, 85, 0.12);
+        --shadow-card: 0 4px 12px rgba(0,0,0,0.04);
+        
+        /* COLORES FINANCIEROS (Consistentes con Capital) */
+        --c-in: #2A5A3B;   /* Verde Fuerte (Ingresos/Suma) */
+        --c-out: #B36A6A;  /* Rojo Terracota Mate (Egresos/Resta) */
+        --c-alert: #FEE2E2; /* Rojo suave para fondo modo edición */
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
     body {
-        background-color: var(--bg-base); 
-        color: var(--text-main);
+        background-color: var(--bg-app); 
+        color: var(--c-green-dark);
         min-height: 100vh;
         transition: background 0.3s ease;
-        background-image: radial-gradient(var(--border-dark) 1px, transparent 1px);
-        background-size: 20px 20px;
     }
 
+    /* Fondo rojo suave al entrar en modo edición */
     body.edit-mode-active {
-        background-color: #2d1a1a;
-        background-image: radial-gradient(var(--c-red) 1px, transparent 1px);
+        background-color: var(--c-alert);
     }
 
     .mobile-container {
         width: 100%; max-width: 600px; margin: 0 auto;
-        padding: calc(env(safe-area-inset-top, 40px) + 20px) 20px calc(env(safe-area-inset-bottom, 34px) + 100px) 20px;
+        padding: calc(env(safe-area-inset-top, 40px) + 15px) 20px calc(env(safe-area-inset-bottom, 34px) + 100px) 20px;
         display: flex; flex-direction: column; gap: 20px;
     }
 
-    .nav-header { display: flex; gap: 12px; align-items: center; }
+    /* HEADER */
+    .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 12px; }
     .nav-btn {
-        width: 50px; height: 50px; border-radius: 14px;
-        background: var(--bg-card); border: 3px solid var(--border-dark);
+        width: 45px; height: 45px; border-radius: 16px; flex-shrink: 0;
+        background: var(--c-white); color: var(--c-green-dark);
         display: flex; align-items: center; justify-content: center;
-        color: var(--text-main); text-decoration: none; font-size: 1.1rem;
-        box-shadow: 4px 4px 0px var(--border-dark); transition: 0.1s;
-        cursor: pointer;
+        text-decoration: none; font-size: 1.2rem;
+        box-shadow: var(--shadow-card); cursor: pointer; transition: 0.2s;
     }
-    .nav-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--border-dark); }
+    .nav-btn:active { transform: scale(0.95); }
     
     .page-title-block {
-        flex: 1; background: var(--bg-card); border: 3px solid var(--border-dark);
-        border-radius: 14px; height: 50px; display: flex; align-items: center; padding: 0 20px;
-        box-shadow: 4px 4px 0px var(--border-dark); font-size: 1.1rem; font-weight: 900; text-transform: uppercase;
+        flex: 1; display: flex; justify-content: center; align-items: center;
+        font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
     }
 
+    /* GOAL CARD PRINCIPAL */
     .goal-card {
-        background: var(--bg-card); border: 3px solid var(--border-dark);
-        border-radius: 20px; padding: 20px; box-shadow: 6px 6px 0px var(--border-dark);
-        display: flex; flex-direction: column; gap: 15px;
+        background: var(--c-green-btn);
+        border-radius: 28px; padding: 24px;
+        box-shadow: var(--shadow-btn);
+        display: flex; flex-direction: column; gap: 18px;
+        color: var(--c-white);
     }
     .goal-stats { display: flex; justify-content: space-between; align-items: flex-end; }
-    .real-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
-    .real-amount { font-size: 2.4rem; font-weight: 900; line-height: 1; }
+    .real-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+    .real-amount { font-size: 2.2rem; font-weight: 900; line-height: 1; margin-top: 5px; }
     .meta-chip { 
-        background: var(--border-dark); padding: 6px 12px; border-radius: 10px; 
-        font-size: 0.75rem; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .progress-track { height: 14px; background: var(--border-dark); border-radius: 10px; overflow: hidden; }
-    .progress-fill { height: 100%; width: 0%; background: var(--c-sage); transition: width 0.8s ease; }
-
-    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .action-btn {
-        background: var(--c-cyan); border: 3px solid var(--border-dark);
-        padding: 12px; border-radius: 12px; color: #fff; font-size: 0.75rem;
-        font-weight: 900; text-align: center; cursor: pointer; text-transform: uppercase;
-        box-shadow: 3px 3px 0px var(--border-dark);
-    }
-
-    .event-row {
-        background: var(--bg-card); border: 3px solid var(--border-dark);
-        border-radius: 16px; padding: 15px; display: grid; 
-        grid-template-columns: 45px 35px 1fr 90px 40px; 
-        align-items: center;
-        box-shadow: 4px 4px 0px var(--border-dark); margin-bottom: 12px;
+        background: rgba(255,255,255,0.15); padding: 8px 14px; border-radius: 12px; 
+        font-size: 0.8rem; font-weight: 800; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);
         transition: 0.2s;
     }
-    .event-row.is-done { opacity: 0.5; transform: scale(0.98); border-style: dashed; }
+    .meta-chip:active { transform: scale(0.95); background: rgba(255,255,255,0.25); }
+
+    .progress-track { height: 8px; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: var(--c-white); transition: width 0.8s ease; }
+
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .action-btn {
+        background: var(--c-white); color: var(--c-green-dark);
+        padding: 14px; border-radius: 16px; font-size: 0.8rem;
+        font-weight: 800; text-align: center; cursor: pointer; text-transform: uppercase;
+        box-shadow: var(--shadow-card); transition: 0.2s;
+    }
+    .action-btn:active { transform: scale(0.96); }
+
+    /* LISTA DE EVENTOS / PLANES */
+    .event-row {
+        background: var(--c-white); border-radius: 20px; padding: 16px; 
+        display: grid; grid-template-columns: 45px 35px 1fr auto 35px; 
+        align-items: center; box-shadow: var(--shadow-card); margin-bottom: 12px;
+        transition: 0.2s; border: 2px solid transparent;
+    }
+    .event-row.is-done { opacity: 0.6; transform: scale(0.98); }
     
     @keyframes shake { 0% { transform: rotate(0.5deg); } 50% { transform: rotate(-0.5deg); } 100% { transform: rotate(0.5deg); } }
-    .edit-mode-active .event-row { animation: shake 0.2s infinite; }
-    .edit-mode-active .event-row.selected { animation: none; border-color: #fff; transform: scale(1.02); }
+    .edit-mode-active .event-row { animation: shake 0.2s infinite; cursor: pointer; }
+    .edit-mode-active .event-row.selected { animation: none; border-color: var(--c-out); transform: scale(1.02); opacity: 1;}
 
-    .col-date { font-family: monospace; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); }
-    .col-icon { font-size: 1rem; text-align: left; opacity: 0.9; }
-    .col-desc { font-weight: 700; font-size: 0.85rem; line-height: 1.2; padding-right: 5px; }
-    .col-amt { text-align: right; font-weight: 900; font-family: monospace; font-size: 0.95rem; }
-    .val-in { color: var(--c-sage); }
-    .val-out { color: var(--c-rust); }
+    .col-date { font-family: monospace; font-size: 0.75rem; font-weight: 800; color: var(--c-green-light); }
+    .col-icon { font-size: 1.1rem; text-align: left; color: var(--c-green-btn); }
+    .col-desc { font-weight: 800; font-size: 0.85rem; line-height: 1.2; padding-right: 5px; color: var(--c-green-dark); }
+    .col-amt { text-align: right; font-weight: 900; font-family: monospace; font-size: 1rem; padding-right: 10px;}
+    .val-in { color: var(--c-in); }
+    .val-out { color: var(--c-out); }
 
     .check-trigger {
-        width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--border-dark);
-        background: var(--bg-base); display: flex; align-items: center; justify-content: center;
-        cursor: pointer; justify-self: flex-end;
+        width: 30px; height: 30px; border-radius: 10px; border: 2px solid var(--bg-app);
+        background: var(--bg-app); display: flex; align-items: center; justify-content: center;
+        cursor: pointer; justify-self: flex-end; transition: 0.2s; color: transparent; font-size: 0.8rem;
     }
-    .is-done .check-trigger { background: var(--c-sage); border-color: var(--c-sage); color: #fff; }
+    .is-done .check-trigger { background: var(--c-green-btn); border-color: var(--c-green-btn); color: var(--c-white); }
 
     .posible-badge {
-        font-size: 0.55rem; font-weight: 900; background: var(--c-purple); 
-        color: #fff; padding: 2px 6px; border-radius: 6px; 
+        font-size: 0.55rem; font-weight: 900; background: var(--c-green-light); 
+        color: var(--c-white); padding: 3px 6px; border-radius: 6px; 
         vertical-align: middle; margin-left: 5px; letter-spacing: 0.5px;
     }
 
+    /* MODALES */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(15, 23, 42, 0.95); z-index: 100;
-        display: none; justify-content: center; align-items: center; padding: 20px;
+        background: rgba(44, 51, 45, 0.5); backdrop-filter: blur(4px); z-index: 100;
+        display: none; justify-content: center; align-items: flex-end;
     }
     .modal-overlay.active { display: flex; }
     .modal-content {
-        background: var(--bg-card); border: 4px solid var(--border-dark);
-        border-radius: 20px; width: 100%; max-width: 450px; padding: 24px;
-        box-shadow: 8px 8px 0px var(--border-dark); display: flex; flex-direction: column; gap: 15px;
+        background: var(--c-white); border-radius: 32px 32px 0 0; width: 100%; padding: 30px 24px 40px 24px;
+        display: flex; flex-direction: column; gap: 15px;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
     }
+    .modal-title { font-size: 1.1rem; font-weight: 800; text-align: center; text-transform: uppercase; color: var(--c-green-dark); margin-bottom: 5px;}
+
     .brutal-input {
-        background: var(--bg-base); border: 3px solid var(--border-dark);
-        border-radius: 12px; padding: 12px; color: #fff; font-weight: 600; width: 100%; outline: none;
+        background: var(--bg-app); border: 2px solid transparent;
+        border-radius: 16px; padding: 14px; color: var(--c-green-dark); 
+        font-weight: 800; width: 100%; outline: none; font-size: 1rem;
+        transition: 0.2s;
     }
+    .brutal-input:focus { border-color: var(--c-green-light); background: var(--c-white); }
 
     .checkbox-group { 
         display: flex; align-items: center; gap: 10px; cursor: pointer;
-        background: rgba(0,0,0,0.1); padding: 10px 15px; border-radius: 10px; border: 1px solid var(--border-dark);
+        background: var(--bg-app); padding: 12px 16px; border-radius: 16px; 
     }
-    .checkbox-group span { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+    .checkbox-group span { font-size: 0.8rem; font-weight: 800; color: var(--c-green-dark); }
 
     .icon-grid { 
-        display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0;
-        max-height: 180px; overflow-y: auto; border: 1px solid var(--border-dark);
-        border-radius: 10px; background: rgba(0,0,0,0.1); padding: 10px;
+        display: flex; flex-wrap: wrap; gap: 8px; padding: 10px;
+        max-height: 160px; overflow-y: auto; border: 2px solid var(--bg-app);
+        border-radius: 16px; background: transparent;
     }
     .icon-opt {
-        width: 34px; height: 34px; border-radius: 8px; background: var(--bg-base); border: 2px solid var(--border-dark);
-        display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem;
+        width: 38px; height: 38px; border-radius: 12px; background: var(--bg-app); 
+        color: var(--c-green-dark); display: flex; align-items: center; justify-content: center; 
+        cursor: pointer; font-size: 1rem; transition: 0.2s;
     }
-    .icon-opt.active { background: var(--c-mustard); color: var(--border-dark); border-color: #fff; }
+    .icon-opt.active { background: var(--c-green-btn); color: var(--c-white); }
 
+    /* BOTONES DE MODAL */
+    .btn-save { background: var(--c-green-btn); color: var(--c-white); padding: 16px; border-radius: 16px; font-size: 1rem; font-weight: 800; text-align: center; border: none; cursor: pointer; width: 100%; margin-top: 10px;}
+    .btn-cancel { background: transparent; color: var(--c-out); font-size: 0.9rem; font-weight: 800; text-align: center; cursor: pointer; border: none; padding: 5px; }
+
+    /* BARRA DE PROYECCIÓN INFERIOR */
     .projection-bar {
         position: fixed; bottom: 0; left: 0; width: 100%;
-        background: var(--border-dark); padding: 15px 25px calc(15px + env(safe-area-inset-bottom));
+        background: var(--c-white); padding: 15px 25px calc(15px + env(safe-area-inset-bottom));
         display: flex; justify-content: space-between; align-items: center;
-        border-top: 3px solid var(--border-dark); z-index: 10;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05); z-index: 10;
     }
+    .proj-amount { font-size: 1.5rem; font-weight: 900; color: var(--c-green-dark); font-family: monospace; }
 
+    /* BARRA DE ELIMINAR */
     .delete-bar {
         display: none; justify-content: space-between; align-items: center;
-        background: var(--c-red); border: 3px solid var(--border-dark);
-        padding: 15px; border-radius: 16px; margin-bottom: 15px;
+        background: var(--c-out); color: var(--c-white);
+        padding: 15px 20px; border-radius: 20px; margin-bottom: 5px;
+        box-shadow: var(--shadow-btn);
     }
     .delete-bar.show { display: flex; }
+    .del-btn { background: var(--c-white); color: var(--c-out); border: none; padding: 8px 16px; border-radius: 10px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; }
 </style>
 </head>
 <body id="bodyTag">
@@ -179,8 +199,8 @@
     </header>
 
     <div class="delete-bar" id="deleteBar">
-        <span style="font-weight: 900; font-size: 0.8rem;" id="selText">0 SELECCIONADOS</span>
-        <button onclick="deleteSelected()" style="background:#fff; color:var(--c-red); border:2px solid var(--border-dark); padding:8px 15px; border-radius:8px; font-weight:900; font-size:0.7rem; text-transform:uppercase;">Borrar</button>
+        <span style="font-weight: 800; font-size: 0.85rem;" id="selText">0 SELECCIONADOS</span>
+        <button class="del-btn" onclick="deleteSelected()">Borrar</button>
     </div>
 
     <div class="goal-card" id="goalContainer">
@@ -195,7 +215,7 @@
         </div>
         <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
         <div class="btn-group">
-            <div class="action-btn" onclick="openBalanceModal()" style="background: var(--c-mustard); color: #000;">Ajustar Saldo</div>
+            <div class="action-btn" onclick="openBalanceModal()">Ajustar Saldo</div>
             <div class="action-btn" onclick="openEventModal()">+ Nuevo Plan</div>
         </div>
     </div>
@@ -204,42 +224,43 @@
 </div>
 
 <div class="projection-bar">
-    <span class="real-label" style="color: var(--text-muted);">Proyección Final</span>
-    <div style="font-size: 1.4rem; font-weight: 900; color: var(--c-mustard); font-family: monospace;" id="projAmount">$0.00</div>
+    <span class="real-label" style="color: var(--c-green-light);">Proyección Final</span>
+    <div class="proj-amount" id="projAmount">$0.00</div>
 </div>
 
-<div class="modal-overlay" id="balanceModal">
-    <div class="modal-content">
-        <h3 style="font-weight: 900; text-transform: uppercase;">Saldo Real</h3>
-        <input type="number" id="inputBalance" class="brutal-input" placeholder="0.00" step="0.01">
-        <div class="action-btn" onclick="saveBalance()">Actualizar</div>
-        <div class="action-btn" style="background: transparent; box-shadow: none;" onclick="toggleModal('balanceModal', false)">Cancelar</div>
+<div class="modal-overlay" id="balanceModal" onclick="closeModal(event, 'balanceModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3 class="modal-title">Saldo Real Base</h3>
+        <input type="number" id="inputBalance" class="brutal-input" placeholder="0.00" step="0.01" inputmode="decimal">
+        <button class="btn-save" onclick="saveBalance()">Actualizar Saldo</button>
+        <button class="btn-cancel" onclick="toggleModal('balanceModal', false)">Cancelar</button>
     </div>
 </div>
 
-<div class="modal-overlay" id="metaModal">
-    <div class="modal-content">
-        <h3 style="font-weight: 900; text-transform: uppercase;">Ajustar Meta</h3>
-        <input type="number" id="inputMeta" class="brutal-input" placeholder="Ej: 3000.00" step="0.01">
-        <div class="action-btn" onclick="saveMeta()">Guardar</div>
+<div class="modal-overlay" id="metaModal" onclick="closeModal(event, 'metaModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3 class="modal-title">Ajustar Meta</h3>
+        <input type="number" id="inputMeta" class="brutal-input" placeholder="Ej: 3000.00" step="0.01" inputmode="decimal">
+        <button class="btn-save" onclick="saveMeta()">Guardar Meta</button>
+        <button class="btn-cancel" onclick="toggleModal('metaModal', false)">Cancelar</button>
     </div>
 </div>
 
-<div class="modal-overlay" id="eventModal">
-    <div class="modal-content">
-        <label style="font-size: 0.6rem; font-weight: 900; color: var(--text-muted);">CATEGORÍA</label>
+<div class="modal-overlay" id="eventModal" onclick="closeModal(event, 'eventModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <label style="font-size: 0.7rem; font-weight: 800; color: var(--c-green-light); text-transform: uppercase;">Categoría del Evento</label>
         <div class="icon-grid" id="iconPicker"></div>
-        <input type="text" id="evName" class="brutal-input" placeholder="Descripción">
-        <input type="number" id="evAmount" class="brutal-input" placeholder="Monto (+/-)" step="0.01">
+        <input type="text" id="evName" class="brutal-input" placeholder="Descripción del plan">
+        <input type="number" id="evAmount" class="brutal-input" placeholder="Monto (+ Ingreso / - Gasto)" step="0.01" inputmode="decimal">
         <input type="date" id="evDate" class="brutal-input">
         
         <label class="checkbox-group">
-            <input type="checkbox" id="evPosible" style="width: 20px; height: 20px; accent-color: var(--c-purple);">
+            <input type="checkbox" id="evPosible" style="width: 22px; height: 22px; accent-color: var(--c-green-btn);">
             <span>Marcar como "Posible" (No seguro)</span>
         </label>
 
-        <div class="action-btn" style="background: var(--c-sage);" onclick="saveEvent()">Añadir al Plan</div>
-        <div class="action-btn" style="background: transparent; box-shadow: none;" onclick="toggleModal('eventModal', false)">Cerrar</div>
+        <button class="btn-save" onclick="saveEvent()">Añadir al Plan</button>
+        <button class="btn-cancel" onclick="toggleModal('eventModal', false)">Cerrar</button>
     </div>
 </div>
 
@@ -307,24 +328,21 @@
             const iconPrefix = (ev.ic && ev.ic.includes('fa-brands')) ? '' : 'fas';
             
             const posibleBadge = ev.p ? '<span class="posible-badge">POSIBLE</span>' : '';
-            
-            // Aquí forzamos a que el monto de la lista individual se muestre en formato contabilidad
-            const formattedAmt = amt.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            const formattedAmt = Math.abs(amt).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
             container.innerHTML += `
                 <div class="event-row ${isDone ? 'is-done' : ''} ${isSel ? 'selected' : ''}" onclick="handleRowClick('${ev.id}')">
                     <div class="col-date">${ev.d.split('-')[2]}/${ev.d.split('-')[1]}</div>
                     <div class="col-icon"><i class="${iconPrefix} ${ev.ic || 'fa-calendar-check'}"></i></div>
                     <div class="col-desc">${ev.n} ${posibleBadge}</div>
-                    <div class="col-amt ${amt >= 0 ? 'val-in' : 'val-out'}">${amt >= 0 ? '+' : ''}${formattedAmt}</div>
+                    <div class="col-amt ${amt >= 0 ? 'val-in' : 'val-out'}">${amt >= 0 ? '+' : '-'}$${formattedAmt}</div>
                     <div class="check-trigger" onclick="toggleEventDone(event, '${ev.id}')">
-                        ${isDone ? '<i class="fas fa-check"></i>' : ''}
+                        <i class="fas fa-check"></i>
                     </div>
                 </div>`;
         });
 
         const saldoRealUI = baseBalance + sumChecked;
-        // Aplicando el formato en-US (miles con coma, decimales con punto)
         document.getElementById('realBalance').innerText = "$" + saldoRealUI.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         
         const proyeccionUI = baseBalance + sumTotalPlanes;
@@ -332,7 +350,7 @@
         
         document.getElementById('metaVal').innerText = "$" + meta.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         
-        const pct = Math.min(100, Math.round((saldoRealUI / meta) * 100));
+        const pct = Math.min(100, Math.round((saldoRealUI / meta) * 100)) || 0;
         document.getElementById('progressBar').style.width = pct + "%";
     }
 
@@ -364,19 +382,45 @@
         selectedItems.clear();
         document.getElementById('bodyTag').classList.toggle('edit-mode-active', isEditMode);
         document.getElementById('deleteBar').classList.toggle('show', isEditMode);
+        
+        // Cambiar el ícono del botón de editar
+        const editBtn = document.getElementById('editBtn');
+        if(isEditMode) {
+            editBtn.innerHTML = '<i class="fas fa-times"></i>';
+        } else {
+            editBtn.innerHTML = '<i class="fas fa-trash-can"></i>';
+        }
+        
         render();
     }
 
     function deleteSelected() {
+        if(selectedItems.size === 0) return;
         let events = JSON.parse(localStorage.getItem(KEY_EVENTS) || '[]');
         events = events.filter(e => !selectedItems.has(e.id));
         localStorage.setItem(KEY_EVENTS, JSON.stringify(events));
         toggleEditMode();
     }
 
-    function toggleModal(id, show) { document.getElementById(id).classList.toggle('active', show); }
-    function openBalanceModal() { toggleModal('balanceModal', true); }
-    function openMetaModal() { toggleModal('metaModal', true); }
+    function toggleModal(id, show) { 
+        document.getElementById(id).classList.toggle('active', show); 
+    }
+    
+    function closeModal(e, id) {
+        if (e.target.id === id) toggleModal(id, false);
+    }
+
+    function openBalanceModal() { 
+        const currentBal = parseFloat(localStorage.getItem(KEY_BALANCE)) || 0;
+        document.getElementById('inputBalance').value = currentBal;
+        toggleModal('balanceModal', true); 
+    }
+    
+    function openMetaModal() { 
+        const currentMeta = parseFloat(localStorage.getItem(KEY_META)) || 3000;
+        document.getElementById('inputMeta').value = currentMeta;
+        toggleModal('metaModal', true); 
+    }
     
     function openEventModal() {
         document.getElementById('evName').value = '';
@@ -391,13 +435,15 @@
     }
     
     function saveBalance() { 
-        localStorage.setItem(KEY_BALANCE, document.getElementById('inputBalance').value); 
+        const val = document.getElementById('inputBalance').value;
+        if(val !== '') localStorage.setItem(KEY_BALANCE, val); 
         toggleModal('balanceModal', false); 
         render(); 
     }
     
     function saveMeta() { 
-        localStorage.setItem(KEY_META, document.getElementById('inputMeta').value); 
+        const val = document.getElementById('inputMeta').value;
+        if(val !== '') localStorage.setItem(KEY_META, val); 
         toggleModal('metaModal', false); 
         render(); 
     }

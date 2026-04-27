@@ -10,74 +10,78 @@
 
 <style>
     :root {
-        --bg-base: #1E293B;
-        --bg-card: #334155;
-        --bg-total: #0F172A; 
-        --text-main: #FFFFFF;
-        --text-muted: #CBD5E1;
-        --border-dark: #0F172A;
-        --c-owed: #ef4444;   /* Rojo */
-        --c-hand: #22c55e;   /* Verde */
-        --c-warn: #facc15;   /* Amarillo */
+        /* PALETA DE VERDES MATE BASE */
+        --bg-app: #D9E2D5;       
+        --c-green-btn: #4A6D55;   
+        --c-green-light: #8DA391; 
+        --c-green-dark: #2C332D;  
+        --c-white: #FFFFFF;
+        --shadow-btn: 0 8px 20px rgba(74, 109, 85, 0.12);
+        --shadow-card: 0 4px 12px rgba(0,0,0,0.04);
+
+        /* COLORES DE ESTADO 100% VERDES (Base) */
+        --c-owed: #7A9D79;  /* Verde salvia claro (Dinero pendiente) */
+        --c-hand: #2A5A3B;  /* Verde bosque fuerte (Dinero seguro) */
+        --c-warn: #A3AD62;  /* Verde oliva dorado (Alerta icono) */
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
     body {
-        background-color: var(--bg-base); 
-        color: var(--text-main);
+        background-color: var(--bg-app); 
+        color: var(--c-green-dark);
         min-height: 100vh;
-        background-image: radial-gradient(var(--border-dark) 1px, transparent 1px);
-        background-size: 20px 20px;
-        transition: 0.3s;
+        transition: background-color 0.4s ease;
     }
 
-    body.risk-alert { background-color: #2d1616; }
+    /* Alerta de riesgo (Fondo rojo suave solicitado) */
+    body.risk-alert { background-color: #FEE2E2; }
 
     .mobile-container {
         width: 100%; max-width: 600px; margin: 0 auto;
-        padding: calc(env(safe-area-inset-top, 40px) + 20px) 20px 40px 20px;
+        padding: calc(env(safe-area-inset-top, 40px) + 15px) 20px calc(env(safe-area-inset-bottom, 34px) + 30px) 20px;
         display: flex; flex-direction: column; gap: 20px;
     }
 
-    .nav-header { display: flex; gap: 12px; align-items: center; }
+    /* HEADER */
+    .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
     .nav-btn {
-        width: 50px; height: 50px; border-radius: 14px;
-        background: var(--bg-card); border: 3px solid var(--border-dark);
+        width: 45px; height: 45px; border-radius: 16px;
+        background: var(--c-white); color: var(--c-green-dark);
         display: flex; align-items: center; justify-content: center;
-        color: var(--text-main); text-decoration: none; font-size: 1.1rem;
-        box-shadow: 4px 4px 0px var(--border-dark); cursor: pointer;
+        text-decoration: none; font-size: 1.2rem;
+        box-shadow: var(--shadow-card); cursor: pointer; transition: 0.2s;
     }
-    .nav-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--border-dark); }
+    .nav-btn:active { transform: scale(0.95); }
     
     .page-title-block {
-        flex: 1; background: var(--bg-card); border: 3px solid var(--border-dark);
-        border-radius: 14px; height: 50px; display: flex; align-items: center; padding: 0 20px;
-        box-shadow: 4px 4px 0px var(--border-dark); font-size: 1.1rem; font-weight: 900; text-transform: uppercase;
+        flex: 1; display: flex; justify-content: center; align-items: center;
+        font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
     }
 
+    /* LIVE CARD / TOTAL DISPLAY */
     .top-display {
         display: flex; align-items: center; gap: 20px;
-        background: var(--bg-total); border: 4px solid var(--border-dark);
-        border-radius: 28px; padding: 25px; box-shadow: 8px 8px 0px var(--border-dark);
+        background: var(--c-green-btn); color: var(--c-white);
+        border-radius: 28px; padding: 24px; box-shadow: var(--shadow-btn);
     }
     .total-info { flex: 1; }
-    .total-label { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); opacity: 0.7; }
-    .total-big { font-size: 2.4rem; font-weight: 900; line-height: 1; color: #fff; margin-top: 5px; }
+    .total-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+    .total-big { font-size: 2.2rem; font-weight: 900; line-height: 1; margin-top: 5px; transition: color 0.4s ease;}
 
     .chart-container {
-        width: 85px; height: 85px; position: relative;
+        width: 80px; height: 80px; position: relative;
         display: flex; align-items: center; justify-content: center;
     }
     .status-icon {
         position: absolute; font-size: 1.4rem;
         z-index: 5; transition: 0.3s;
     }
-    .icon-safe { color: var(--c-hand); }
+    .icon-safe { color: var(--c-white); opacity: 0.9; }
     .icon-warn { color: var(--c-warn); animation: pulse 1s infinite; }
 
     svg { transform: rotate(-90deg); }
-    .circle-bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 5; }
+    .circle-bg { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 5; }
     
     .circle-owed { 
         fill: none; stroke: var(--c-owed); stroke-width: 5; 
@@ -88,33 +92,42 @@
         stroke-linecap: round; transition: all 0.5s ease;
     }
 
+    /* BARRAS DE PROGRESO */
     .dual-progress-container {
-        height: 14px; background: var(--border-dark); border-radius: 10px;
-        overflow: hidden; display: flex; border: 2px solid var(--border-dark);
-        box-shadow: 2px 2px 0px var(--border-dark);
+        height: 8px; background: rgba(0,0,0,0.08); border-radius: 10px;
+        overflow: hidden; display: flex; margin-top: -5px;
     }
     .progress-owed { height: 100%; background: var(--c-owed); transition: 0.5s; }
     .progress-hand { height: 100%; background: var(--c-hand); transition: 0.5s; }
 
-    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    /* INPUT GRID */
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 5px; }
     .card {
-        background: var(--bg-card); border: 3px solid var(--border-dark);
-        border-radius: 20px; padding: 15px; box-shadow: 4px 4px 0px var(--border-dark);
-        display: flex; flex-direction: column; gap: 10px;
+        background: var(--c-white); 
+        border-radius: 24px; padding: 20px; box-shadow: var(--shadow-card);
+        display: flex; flex-direction: column; gap: 12px;
+        border-top: 6px solid; 
+        transition: border-color 0.4s ease;
     }
-    .card-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; border-bottom: 2px solid var(--border-dark); padding-bottom: 5px; }
+    .card-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px; transition: color 0.4s ease;}
+    
     .input-group { display: flex; flex-direction: column; gap: 4px; }
-    .input-group label { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+    .input-group label { font-size: 0.65rem; font-weight: 800; color: var(--c-green-light); text-transform: uppercase; }
     .brutal-input {
-        background: var(--bg-base); border: 2px solid var(--border-dark);
-        border-radius: 8px; padding: 8px; color: #fff; font-weight: 800; outline: none; width: 100%;
+        background: var(--bg-app); border: 2px solid transparent;
+        border-radius: 12px; padding: 10px; color: var(--c-green-dark); 
+        font-weight: 800; font-size: 1rem; outline: none; width: 100%;
+        transition: 0.2s; text-align: right;
     }
+    .brutal-input:focus { border-color: var(--c-green-light); background: var(--c-white); }
+    
     .card-subtotal {
-        margin-top: 5px; padding-top: 8px; border-top: 1px dashed var(--border-dark);
+        margin-top: 5px; padding-top: 12px; border-top: 1px dashed rgba(0,0,0,0.1);
         display: flex; justify-content: space-between; align-items: center;
+        color: var(--c-green-dark);
     }
-    .sub-lbl { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
-    .sub-val { font-weight: 900; font-family: monospace; font-size: 1.1rem; }
+    .sub-lbl { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+    .sub-val { font-weight: 900; font-size: 1.15rem; transition: color 0.4s ease;}
 
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.8; } }
 </style>
@@ -124,13 +137,13 @@
 <div class="mobile-container">
     <header class="nav-header">
         <a href="index.html" class="nav-btn"><i class="fas fa-arrow-left"></i></a>
-        <div class="page-title-block">Ahorros</div>
+        <div class="page-title-block">Capital</div>
         <a href="meta.html" class="nav-btn"><i class="fas fa-bullseye"></i></a>
     </header>
 
     <div class="top-display">
         <div class="total-info">
-            <span class="total-label">Capital Acumulado</span>
+            <div class="total-label">Capital Acumulado</div>
             <div class="total-big" id="totalCapital">$0.00</div>
         </div>
         <div class="chart-container">
@@ -149,20 +162,20 @@
     </div>
 
     <div class="input-grid">
-        <div class="card" style="border-color: var(--c-owed);">
-            <span class="card-title" style="color: var(--c-owed);">Me deben</span>
-            <div class="input-group"><label>CAME</label><input type="number" id="val_came" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()"></div>
-            <div class="input-group"><label>MAMÁ</label><input type="number" id="val_mama" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()"></div>
-            <div class="input-group"><label>OTRO</label><input type="number" id="val_otro" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()"></div>
-            <div class="card-subtotal"><span class="sub-lbl">Total</span><span class="sub-val" id="subOwed">$0.00</span></div>
+        <div class="card" id="cardOwed" style="border-color: var(--c-owed);">
+            <span class="card-title" id="titleOwed" style="color: var(--c-owed);">Me deben</span>
+            <div class="input-group"><label>CAME</label><input type="number" id="val_came" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()" inputmode="decimal"></div>
+            <div class="input-group"><label>MAMÁ</label><input type="number" id="val_mama" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()" inputmode="decimal"></div>
+            <div class="input-group"><label>OTRO</label><input type="number" id="val_otro" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()" inputmode="decimal"></div>
+            <div class="card-subtotal"><span class="sub-lbl">Total</span><span class="sub-val" id="subOwed" style="color: var(--c-owed);">$0.00</span></div>
         </div>
 
-        <div class="card" style="border-color: var(--c-hand);">
-            <span class="card-title" style="color: var(--c-hand);">En mano</span>
-            <div class="input-group"><label>CARTERA</label><input type="number" id="val_cartera" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()"></div>
-            <div class="input-group"><label>TARJETA</label><input type="number" id="val_tarjeta" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()"></div>
-            <div class="input-group"><label>MONEDAS</label><input type="number" id="val_monedas" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()"></div>
-            <div class="card-subtotal"><span class="sub-lbl">Total</span><span class="sub-val" id="subHand">$0.00</span></div>
+        <div class="card" id="cardHand" style="border-color: var(--c-hand);">
+            <span class="card-title" id="titleHand" style="color: var(--c-hand);">En mano</span>
+            <div class="input-group"><label>CARTERA</label><input type="number" id="val_cartera" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()" inputmode="decimal"></div>
+            <div class="input-group"><label>TARJETA</label><input type="number" id="val_tarjeta" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()" inputmode="decimal"></div>
+            <div class="input-group"><label>MONEDAS</label><input type="number" id="val_monedas" class="brutal-input" placeholder="0.00" step="0.01" oninput="calc()" inputmode="decimal"></div>
+            <div class="card-subtotal"><span class="sub-lbl">Total</span><span class="sub-val" id="subHand" style="color: var(--c-hand);">$0.00</span></div>
         </div>
     </div>
 </div>
@@ -189,13 +202,23 @@
         ids.forEach(id => dataToSave[id] = document.getElementById(`val_${id}`).value);
         localStorage.setItem(storageKey, JSON.stringify(dataToSave));
 
-        // Aplicando el formato en-US (miles con coma, decimales con punto)
         document.getElementById('subOwed').innerText = "$" + sumOwed.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         document.getElementById('subHand').innerText = "$" + sumHand.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         document.getElementById('totalCapital').innerText = "$" + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
         const iconBox = document.getElementById('statusIcon');
         const body = document.getElementById('mainBody');
+
+        // Referencias para cambios de color solicitados
+        const donutOwed = document.getElementById('donutOwed');
+        const barOwed = document.getElementById('barOwed');
+        const titleOwed = document.getElementById('titleOwed');
+        const cardOwed = document.getElementById('cardOwed');
+        const totalCapital = document.getElementById('totalCapital');
+
+        // Colores Mate
+        const sageOwed = '#7A9D79'; // Estándar
+        const redMate = '#B36A6A';  // Riesgo solicitado
 
         if (total > 0) {
             const ratioOwed = sumOwed / total;
@@ -204,34 +227,58 @@
             const dashOwed = ratioOwed * 220;
             const dashHand = ratioHand * 220;
 
-            // Círculo Rojo (Me deben)
-            document.getElementById('donutOwed').style.strokeDasharray = `${dashOwed} 220`;
-            document.getElementById('donutOwed').style.opacity = sumOwed > 0 ? 1 : 0;
+            // Lógica de alerta y cambios de color solicitados
+            if (sumOwed > sumHand && sumOwed > 0) {
+                // ESTADO DE RIESGO
+                iconBox.innerHTML = '<i class="fas fa-triangle-exclamation"></i>';
+                iconBox.className = 'status-icon icon-warn';
+                body.classList.add('risk-alert'); // Fondo rojo suave
+
+                // Cambiar elementos solicitados a ROJO
+                donutOwed.style.stroke = redMate;
+                barOwed.style.background = redMate;
+                titleOwed.style.color = redMate;
+                cardOwed.style.borderColor = redMate;
+                totalCapital.style.color = redMate; // El número de capital también cambia para reflejar riesgo
+
+            } else {
+                // ESTADO SEGURO
+                iconBox.innerHTML = '<i class="fas fa-shield-halved"></i>';
+                iconBox.className = 'status-icon icon-safe';
+                body.classList.remove('risk-alert');
+
+                // Volver elementos solicitados a VERDE estándar
+                donutOwed.style.stroke = sageOwed;
+                barOwed.style.background = sageOwed;
+                titleOwed.style.color = sageOwed;
+                cardOwed.style.borderColor = sageOwed;
+                totalCapital.style.color = 'var(--c-white)'; // Vuelve a blanco dentro de la tarjeta verde
+            }
+
+            // Círculo "Me deben"
+            donutOwed.style.strokeDasharray = `${dashOwed} 220`;
+            donutOwed.style.opacity = sumOwed > 0 ? 1 : 0;
             
-            // Círculo Verde (En mano), desplazado para empezar donde termina el rojo
+            // Círculo "En mano"
             document.getElementById('donutHand').style.strokeDasharray = `${dashHand} 220`;
             document.getElementById('donutHand').style.strokeDashoffset = -dashOwed;
             document.getElementById('donutHand').style.opacity = sumHand > 0 ? 1 : 0;
 
-            // Lógica de alerta
-            if (sumOwed > sumHand && sumOwed > 0) {
-                iconBox.innerHTML = '<i class="fas fa-triangle-exclamation"></i>';
-                iconBox.className = 'status-icon icon-warn';
-                body.classList.add('risk-alert');
-            } else {
-                iconBox.innerHTML = '<i class="fas fa-shield-halved"></i>';
-                iconBox.className = 'status-icon icon-safe';
-                body.classList.remove('risk-alert');
-            }
-
             document.getElementById('barOwed').style.width = (ratioOwed * 100) + "%";
             document.getElementById('barHand').style.width = (ratioHand * 100) + "%";
         } else {
-            document.getElementById('donutOwed').style.strokeDasharray = `0 220`;
+            // Reset cuando total es cero
+            donutOwed.style.strokeDasharray = `0 220`;
             document.getElementById('donutHand').style.strokeDasharray = `0 220`;
-            document.getElementById('donutOwed').style.opacity = 0;
+            donutOwed.style.opacity = 0;
             document.getElementById('donutHand').style.opacity = 0;
             
+            donutOwed.style.stroke = sageOwed;
+            barOwed.style.background = sageOwed;
+            titleOwed.style.color = sageOwed;
+            cardOwed.style.borderColor = sageOwed;
+            totalCapital.style.color = 'var(--c-white)';
+
             iconBox.innerHTML = '<i class="fas fa-shield-halved"></i>';
             body.classList.remove('risk-alert');
         }
